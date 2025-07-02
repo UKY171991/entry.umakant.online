@@ -145,6 +145,10 @@
                         <label for="image" class="form-label">Task Image</label>
                         <input type="file" class="form-control" id="image" name="image" accept="image/*">
                         <small class="form-text text-muted">Upload an image for this task (optional)</small>
+                        <div id="current_image_container" class="mt-2" style="display: none;">
+                            <h6>Current Image:</h6>
+                            <img id="current_image_preview" src="" alt="Current Task Image" style="max-width: 200px; height: auto;">
+                        </div>
                     </div>
                 </form>
             </div>
@@ -212,12 +216,14 @@
                 $('#taskForm').trigger("reset");
                 $('#modelHeading').html("Create New Task");
                 $('#ajaxModel').modal('show');
+                $('#current_image_container').hide();
             });
 
             // Edit Task
             $('body').on('click', '.editTask', function () {
                 var task_id = $(this).data('id');
                 $.get("/pending-tasks/" + task_id + '/edit', function (data) {
+                    console.log('Data received for edit:', data); // Add this line for debugging
                     $('#modelHeading').html("Edit Task");
                     $('#saveBtn').val("edit-task");
                     $('#ajaxModel').modal('show');
@@ -230,6 +236,12 @@
                     $('#payment').val(data.payment);
                     $('#payment_status').val(data.payment_status);
                     $('#existing_image_path').val(data.image_path);
+                    if (data.image_path) {
+                        $('#current_image_preview').attr('src', '/storage/' + data.image_path);
+                        $('#current_image_container').show();
+                    } else {
+                        $('#current_image_container').hide();
+                    }
                 })
                 .fail(function(xhr) {
                     let message = xhr.responseJSON && xhr.responseJSON.message ? xhr.responseJSON.message : 'Error loading task data';
@@ -252,7 +264,7 @@
                 
                 if (saveBtn.val() === "edit-task") {
                     url = "/pending-tasks/" + taskId;
-                    type = "PUT";
+                    type = "POST";
                     formData.append('_method', 'PUT');
                 }
 

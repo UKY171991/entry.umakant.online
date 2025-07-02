@@ -36,6 +36,7 @@
                     <th>EMAIL</th>
                     <th>UPDATED AT</th>
                     <th>Action</th>
+                    <th>Send Email</th>
                 </tr>
             </thead>
             <tbody>
@@ -112,7 +113,8 @@
                     {data: 'client_name', name: 'client_name'},
                     {data: 'email', name: 'email'},
                     {data: 'updated_at', name: 'updated_at'},
-                    {data: 'action', name: 'action', orderable: false, searchable: false}
+                    {data: 'action', name: 'action', orderable: false, searchable: false},
+                    {data: 'send_email', name: 'send_email', orderable: false, searchable: false}
                 ],
                 responsive: true,
                 language: {
@@ -145,7 +147,7 @@
                     $('#saveBtn').val("edit-email");
                     $('#ajaxModel').modal('show');
                     $('#email_id').val(data.id);
-                    $('#client_id').val(data.client_id);
+                    $('#client_name').val(data.client_name);
                     $('#email').val(data.email);
                 })
                 .fail(function(xhr) {
@@ -204,19 +206,37 @@
             // Delete Email
             $('body').on('click', '.deleteEmail', function () {
                 var email_id = $(this).data("id");
-                if(confirm("Are you sure you want to delete this email record?")) {
+                if(confirm("Are you sure you want to delete this email?")) {
                     $.ajax({
                         type: "DELETE",
                         url: "/emails/" + email_id,
-                        headers: {
-                            'X-CSRF-TOKEN': $('meta[name="csrf-token"]').attr('content')
-                        },
+                        data: { _token: $('meta[name="csrf-token"]').attr('content') },
                         success: function (data) {
                             table.draw();
-                            toastr.success(data.success || data.message || 'Email record deleted successfully');
+                            toastr.success(data.success || data.message || 'Email deleted successfully');
                         },
                         error: function (xhr) {
                             let message = xhr.responseJSON && xhr.responseJSON.message ? xhr.responseJSON.message : 'An error occurred';
+                            toastr.error(message);
+                        }
+                    });
+                }
+            });
+
+            // Send Email
+            $('body').on('click', '.sendEmail', function () {
+                var email_id = $(this).data('id');
+                var email_address = $(this).data('email');
+                if(confirm("Are you sure you want to send an email to " + email_address + "?")) {
+                    $.ajax({
+                        type: "POST",
+                        url: "/emails/send/" + email_id,
+                        data: { _token: $('meta[name="csrf-token"]').attr('content') },
+                        success: function (data) {
+                            toastr.success(data.success || data.message || 'Email sent successfully');
+                        },
+                        error: function (xhr) {
+                            let message = xhr.responseJSON && xhr.responseJSON.message ? xhr.responseJSON.message : 'An error occurred while sending email';
                             toastr.error(message);
                         }
                     });

@@ -152,6 +152,8 @@ class IncomeController extends Controller
 
     public function show(string $id)
     {
+        // Default ordering by created_at in descending order
+        $query->orderBy('created_at', 'desc');
         $income = Income::with('client')->find($id);
         if (!$income) {
             return response()->json(['error' => 'Income not found'], 404);
@@ -197,3 +199,5 @@ class IncomeController extends Controller
         return response()->json(['success' => 'Income deleted successfully.']);
     }
 }
+
+

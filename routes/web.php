@@ -19,6 +19,9 @@ Route::resource('incomes', App\Http\Controllers\IncomeController::class)
 
 Route::resource('expenses', App\Http\Controllers\ExpenseController::class);
 
+Route::resource('emails', App\Http\Controllers\EmailController::class);
+Route::post('emails/send/{id}', [App\Http\Controllers\EmailController::class, 'sendEmail'])->name('emails.send');
+
 Route::middleware('auth')->group(function () {
     Route::get('/profile', [ProfileController::class, 'edit'])->name('profile.edit');
     Route::patch('/profile', [ProfileController::class, 'update'])->name('profile.update');

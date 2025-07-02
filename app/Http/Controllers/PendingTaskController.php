@@ -143,6 +143,10 @@ class PendingTaskController extends Controller
         if (!$task) {
             return response()->json(['error' => 'Task not found'], 404);
         }
+        if ($task) {
+            $task->payment = (float) $task->payment; // Ensure payment is a float
+            $task->due_date = $task->due_date ? \Illuminate\Support\Carbon::parse($task->due_date)->format('Y-m-d') : null;
+        }
         return response()->json($task);
     }
 
@@ -154,7 +158,7 @@ class PendingTaskController extends Controller
             'description' => 'required|string',
             'due_date' => 'required|date',
             'status' => 'required|in:Pending,In Progress,Completed',
-            'payment' => 'required|numeric|min:0',
+            'payment' => 'nullable|numeric|min:0',
             'payment_status' => 'required|in:Unpaid,Paid',
             'image' => 'nullable|image|mimes:jpeg,png,jpg,gif|max:2048',
         ]);
@@ -175,7 +179,7 @@ class PendingTaskController extends Controller
                 Storage::delete('public/' . $imagePath);
             }
             
-            $imagePath = $request->file('image')->store('tasks', 'public');
+            $imagePath = $request->file('image')->store('task-images', 'public');
         }
 
         $task->update([
@@ -195,6 +199,15 @@ class PendingTaskController extends Controller
     public function edit(string $id)
     {
         $task = PendingTask::find($id);
+        if (!$task) {
+            return response()->json(['error' => 'Task not found'], 404);
+        }
+
+        // Format due_date to Y-m-d for the HTML date input
+        $task->due_date = $task->due_date ? \Illuminate\Support\Carbon::parse($task->due_date)->format('Y-m-d') : null;
+        // Ensure payment is a float
+        $task->payment = (float) $task->payment;
+
         return response()->json($task);
     }
 
