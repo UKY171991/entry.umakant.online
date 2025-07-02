@@ -113,7 +113,7 @@
                 }
             },
             columns: [
-                {data: 'sr_no', name: 'sr_no', orderable: false, searchable: false},
+                {data: 'DT_RowIndex', name: 'DT_RowIndex', orderable: false, searchable: false},
                 {data: 'expense_name', name: 'expense_name'},
                 {data: 'amount', name: 'amount'},
                 {data: 'category', name: 'category'},

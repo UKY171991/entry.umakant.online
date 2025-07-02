@@ -309,40 +309,23 @@ return [
             'type' => 'fullscreen-widget',
             'topnav_right' => true,
         ],
-        [
-            'text' => 'Logout',
-            'url'  => 'logout',
-            'topnav_right' => true,
-            'icon' => 'fas fa-fw fa-sign-out-alt',
-        ],
 
         // Sidebar items:
         [
-            'text' => 'Dashboard',
-            'url' => 'dashboard',
-            'icon' => 'fas fa-fw fa-tachometer-alt',
+            'type' => 'sidebar-menu-search',
+            'text' => 'search',
         ],
-
         [
             'text' => 'blog',
             'url' => 'admin/blog',
             'can' => 'manage-blog',
         ],
-
         [
-            'text' => 'Clients',
-            'url'  => 'clients',
-            'icon' => 'fas fa-fw fa-users',
-        ],
-        [
-            'text' => 'Incomes',
-            'url'  => 'incomes',
-            'icon' => 'fas fa-fw fa-money-bill-wave',
-        ],
-        [
-            'text' => 'Expenses',
-            'url'  => 'expenses',
-            'icon' => 'fas fa-fw fa-money-bill-alt',
+            'text' => 'pages',
+            'url' => 'admin/pages',
+            'icon' => 'far fa-fw fa-file',
+            'label' => 4,
+            'label_color' => 'success',
         ],
         ['header' => 'account_settings'],
         [
@@ -393,7 +376,6 @@ return [
                 ],
             ],
         ],
-        
         ['header' => 'labels'],
         [
             'text' => 'important',

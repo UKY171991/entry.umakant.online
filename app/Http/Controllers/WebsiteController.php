@@ -105,17 +105,13 @@ class WebsiteController extends Controller
         );
 
         return response()->json(['success' => 'Website saved successfully!', 'website' => $website]);
-    }t->client_name,
-                'website_url' => $request->website_url,
-                'status' => $request->status,
-                'last_updated' => now(),
-            ]
-        );
-
-        return response()->json(['success' => 'Website saved successfully!', 'website' => $website]);
     }
 
     public function show(string $id)
+    {
+        // Method implementation
+    }
+
     public function update(Request $request, string $id)
     {
         $validator = Validator::make($request->all(), [
@@ -135,14 +131,6 @@ class WebsiteController extends Controller
 
         $website->update([
             'client_id' => $request->client_id,
-            'website_url' => $request->website_url,
-            'status' => $request->status,
-            'last_updated' => now(),
-        ]);
-
-        return response()->json(['success' => 'Website updated successfully!', 'website' => $website]);
-    }   $website->update([
-            'client_name' => $request->client_name,
             'website_url' => $request->website_url,
             'status' => $request->status,
             'last_updated' => now(),

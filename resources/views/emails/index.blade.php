@@ -59,13 +59,8 @@
                     <input type="hidden" name="email_id" id="email_id">
                     
                     <div class="mb-3">
-                        <label for="client_id" class="form-label">Client</label>
-                        <select class="form-control" id="client_id" name="client_id" required>
-                            <option value="">Select Client</option>
-                            @foreach($clients as $client)
-                                <option value="{{ $client->id }}">{{ $client->name }}</option>
-                            @endforeach
-                        </select>
+                        <label for="client_name" class="form-label">Client Name</label>
+                        <input type="text" class="form-control" id="client_name" name="client_name" placeholder="Enter Client Name" required>
                     </div>
 
                     <div class="mb-3">
@@ -232,111 +227,6 @@
             $('#filterBtn').click(function() {
                 table.draw();
                 toastr.info('Filter applied');
-            });
-        });
-    </script>
-@endsection
-            $('#createNewEmail').click(function () {
-                $('#saveBtn').val("create-email");
-                $('#email_id').val('');
-                $('#emailForm').trigger("reset");
-                $('#modelHeading').html("Create New Email Record");
-                $('#ajaxModel').modal('show');
-            });
-
-            // Edit Email
-            $('body').on('click', '.editEmail', function () {
-                var email_id = $(this).data('id');
-                $.get("/emails/" + email_id + '/edit', function (data) {
-                    $('#modelHeading').html("Edit Email Record");
-                    $('#saveBtn').val("edit-email");
-                    $('#ajaxModel').modal('show');
-                    $('#email_id').val(data.id);
-                    $('#client_name').val(data.client_name);
-                    $('#email').val(data.email);
-                })
-                .fail(function(xhr) {
-                    let message = xhr.responseJSON && xhr.responseJSON.message ? xhr.responseJSON.message : 'Error loading email data';
-                    toastr.error(message);
-                });
-            });
-
-            // Reset modal state on close
-            $('#ajaxModel').on('hidden.bs.modal', function () {
-                $('#emailForm').trigger("reset");
-                $('#email_id').val('');
-                $('#saveBtn').val("create-email");
-                $('#modelHeading').html("Create New Email Record");
-            });
-
-            // Save Email (Add or Edit)
-            $('#saveBtn').click(function (e) {
-                e.preventDefault();
-                var saveBtn = $(this);
-                var originalText = saveBtn.html();
-                saveBtn.html('<i class="fas fa-spinner fa-spin"></i> Saving...');
-                saveBtn.prop('disabled', true);
-
-                var emailId = $('#email_id').val();
-                var url = "/emails";
-                var type = "POST";
-                if (saveBtn.val() === "edit-email") {
-                    url = "/emails/" + emailId;
-                    type = "PUT";
-                }
-
-                $.ajax({
-                    data: $('#emailForm').serialize(),
-                    url: url,
-                    type: type,
-                    dataType: 'json',
-                    success: function (data) {
-                        $('#emailForm').trigger("reset");
-                        $('#ajaxModel').modal('hide');
-                        table.draw();
-                        toastr.success(data.success || data.message || 'Operation successful');
-                    },
-                    error: function (xhr) {
-                        if (xhr.status === 422 && xhr.responseJSON && xhr.responseJSON.errors) {
-                            let errors = xhr.responseJSON.errors;
-                            let messages = Object.values(errors).map(arr => arr.join('<br>')).join('<br>');
-                            toastr.error(messages);
-                        } else {
-                            let message = xhr.responseJSON && xhr.responseJSON.message ? xhr.responseJSON.message : 'An error occurred';
-                            toastr.error(message);
-                        }
-                    },
-                    complete: function() {
-                        saveBtn.html(originalText);
-                        saveBtn.prop('disabled', false);
-                    }
-                });
-            });
-
-            // Delete Email
-            $('body').on('click', '.deleteEmail', function () {
-                var email_id = $(this).data("id");
-                if(confirm("Are you sure you want to delete this email record?")) {
-                    $.ajax({
-                        type: "DELETE",
-                        url: "/emails/" + email_id,
-                        data: { _token: $('meta[name="csrf-token"]').attr('content') },
-                        success: function (data) {
-                            table.draw();
-                            toastr.success(data.success || data.message || 'Email record deleted successfully');
-                        },
-                        error: function (xhr) {
-                            let message = xhr.responseJSON && xhr.responseJSON.message ? xhr.responseJSON.message : 'An error occurred';
-                            toastr.error(message);
-                        }
-                    });
-                }
-            });
-
-            // Send Email
-            $('body').on('click', '.sendEmail', function () {
-                var email_id = $(this).data("id");
-                toastr.info('Email sending functionality will be implemented soon');
             });
         });
     </script>

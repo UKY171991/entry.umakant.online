@@ -73,71 +73,85 @@ class EmailController extends Controller
     public function store(Request $request)
     {
         $validator = Validator::make($request->all(), [
-            'client_id' => 'required|exists:clients,id',
-            'email' => 'required|email|max:255',
-        ]);
+             'client_name' => 'required|string|max:255',
+             'email' => 'required|email|max:255',
+         ]);
 
-        if ($validator->fails()) {
-            return response()->json(['errors' => $validator->errors()], 422);
-        }
+         if ($validator->fails()) {
+             return response()->json(['errors' => $validator->errors()], 422);
+         }
 
-        $email = Email::updateOrCreate(
-            ['id' => $request->email_id],
-            [
-                'client_id' => $request->client_id,
-                'email' => $request->email,
-            ]
-        );
+         $client = Client::firstOrCreate(['name' => $request->client_name]);
+         $clientId = $client->id;
 
-        return response()->json(['success' => 'Email saved successfully!', 'email' => $email]);
-    }
+         $email = Email::updateOrCreate(
+             ['id' => $request->email_id],
+             [
+                 'client_id' => $clientId,
+                 'email' => $request->email,
+             ]
+         );
 
-    public function show(string $id)
-    {
-        $email = Email::find($id);
-        if (!$email) {
-            return response()->json(['error' => 'Email not found'], 404);
-        }
-        return response()->json($email);
-    }
+         return response()->json(['success' => 'Email saved successfully!', 'email' => $email]);
+     }
 
-    public function edit(string $id)
-    {
-        $email = Email::find($id);
-        return response()->json($email);
-    }
+     public function show(string $id)
+     {
+         $email = Email::find($id);
+         if (!$email) {
+             return response()->json(['error' => 'Email not found'], 404);
+         }
+         return response()->json($email);
+     }
 
-    public function update(Request $request, string $id)
-    {
-        $validator = Validator::make($request->all(), [
-            'client_id' => 'required|exists:clients,id',
-            'email' => 'required|email|max:255',
-        ]);
+     public function edit(string $id)
+     {
+         $email = Email::with('client')->find($id);
+         if (!$email) {
+             return response()->json(['error' => 'Email not found'], 404);
+         }
+         return response()->json([
+             'id' => $email->id,
+             'client_id' => $email->client_id,
+             'client_name' => $email->client->name,
+             'email' => $email->email,
+         ]);
+     }
 
-        if ($validator->fails()) {
-            return response()->json(['errors' => $validator->errors()], 422);
-        }
+     public function update(Request $request, string $id)
+     {
+         $validator = Validator::make($request->all(), [
+             'client_name' => 'required|string|max:255',
+             'email' => 'required|email|max:255',
+         ]);
 
-        $email = Email::find($id);
-        if (!$email) {
-            return response()->json(['error' => 'Email not found'], 404);
-        }
+         if ($validator->fails()) {
+             return response()->json(['errors' => $validator->errors()], 422);
+         }
 
-        $email->update([
-            'client_id' => $request->client_id,
-            'email' => $request->email,
-        ]);
+         $email = Email::find($id);
+         if (!$email) {
+             return response()->json(['error' => 'Email not found'], 404);
+         }
 
-        return response()->json(['success' => 'Email updated successfully!', 'email' => $email]);
-    }
+         $client = Client::firstOrCreate(['name' => $request->client_name]);
+         $clientId = $client->id;
 
-    public function destroy(string $id)
-    {
-        $email = Email::find($id);
-        if ($email) {
-            $email->delete();
-            return response()->json(['success' => 'Email deleted successfully!']);
-        }
-        return response()->json(['error' => 'Email not found'], 404);
-    }
-}
+         $email->update([
+             'client_id' => $clientId,
+             'email' => $request->email,
+         ]);
+
+         return response()->json(['success' => 'Email updated successfully!', 'email' => $email]);
+     }
+
+     public function destroy(string $id)
+     {
+         $email = Email::find($id);
+         if ($email) {
+             $email->delete();
+             return response()->json(['success' => 'Email deleted successfully!']);
+         }
+         return response()->json(['error' => 'Email not found'], 404);
+     }
+ }

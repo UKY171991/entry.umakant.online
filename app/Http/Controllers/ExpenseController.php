@@ -19,15 +19,21 @@ class ExpenseController extends Controller
             $data = Expense::orderBy('created_at', 'desc')->select('*');
 
              try {
-                 return Datatables::of($data)
-
+                 return DataTables::of($data)
+                     ->addIndexColumn()
+                     ->addColumn('action', function($row){
+                         $editBtn = '<a href="javascript:void(0)" data-toggle="tooltip" data-id="' . $row->id . '" data-original-title="Edit" class="edit btn btn-primary btn-sm editExpense">Edit</a>';
+                         $deleteBtn = '<a href="javascript:void(0)" data-toggle="tooltip" data-id="' . $row->id . '" data-original-title="Delete" class="btn btn-danger btn-sm deleteExpense">Delete</a>';
+                         return $editBtn . ' ' . $deleteBtn;
+                     })
+                     ->rawColumns(['action'])
                      ->make(true);
              } catch (\Exception $e) {
                  return response()->json(['error' => $e->getMessage(), 'trace' => $e->getTraceAsString()], 500);
              }
         }
 
-        return view('expenses.index');
+        return view('expenses.index_new');
     }
 
     /**
