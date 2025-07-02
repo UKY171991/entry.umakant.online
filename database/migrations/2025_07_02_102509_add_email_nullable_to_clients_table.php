@@ -12,7 +12,8 @@ return new class extends Migration
     public function up(): void
     {
         Schema::table('clients', function (Blueprint $table) {
-            $table->string('email')->unique()->nullable()->change();
+            $table->dropUnique(['email']);
+             $table->string('email')->nullable()->change();
         });
     }
 
