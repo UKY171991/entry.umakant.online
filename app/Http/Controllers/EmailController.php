@@ -7,6 +7,7 @@ use App\Models\Client;
 use Illuminate\Http\Request;
 use Illuminate\Support\Facades\Validator;
 use App\Http\Requests\EmailRequest;
+use Illuminate\Support\Facades\Mail;
 
 class EmailController extends Controller
 {
@@ -148,24 +149,35 @@ class EmailController extends Controller
         return response()->json(['error' => 'Email not found'], 404);
     }
 
-    public function sendEmail(string $id)
+    public function sendEmail(Request $request)
     {
-        $emailRecord = Email::find($id);
+        $to = $request->input('to', 'uky171991@gmail.com');
+        $subject = 'This is a test email for pending tasks reminder.';
+        $body = 'This is a test email for pending tasks reminder.';
 
-        if (!$emailRecord) {
-            return response()->json(['error' => 'Email record not found'], 404);
+        try {
+            Mail::to($to)->send(new \App\Mail\PendingTaskReminder($subject, $body));
+            return response()->json(['message' => 'Test email sent successfully!']);
+        } catch (Exception $e) {
+            return response()->json(['message' => 'Failed to send test email.', 'error' => $e->getMessage()], 500);
+        }
+    }
+
+    public function sendWebsiteDevelopmentUpdateEmail(Request $request)
+    {
+        $to = $request->input('to');
+        $subject = $request->input('subject');
+        $body = $request->input('body');
+
+        if (!$to || !$subject || !$body) {
+            return response()->json(['message' => 'Missing required parameters: to, subject, or body.'], 400);
         }
 
         try {
-            // For demonstration, we'll just simulate sending an email.
-            // In a real application, you would use Laravel's Mail facade here.
-            // Example: Mail::to($emailRecord->email)->send(new YourMailableClass());
-
-            // Log the action or send a notification
-            
-            return response()->json(['success' => 'Test email sent successfully to ' . $emailRecord->email]);
-        } catch (\Exception $e) {
-            return response()->json(['error' => 'Failed to send email: ' . $e->getMessage()], 500);
+            Mail::to($to)->send(new \App\Mail\WebsiteDevelopmentUpdate($subject, $body));
+            return response()->json(['message' => 'Website development update email sent successfully!']);
+        } catch (Exception $e) {
+            return response()->json(['message' => 'Failed to send website development update email.', 'error' => $e->getMessage()], 500);
         }
     }
 }
