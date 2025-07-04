@@ -6,12 +6,25 @@
 @section('content')
 <!-- Filter Section -->
 <div class="filter-section">
-    <div class="row">
-        <div class="col-md-3">
+                   data: function(d) {
+                    d.month = $('#monthFilter').val();
+                    d.year = $('#yearFilter').val();
+                    d.pending_filter = $('#pendingFilter').val();
+                    d.received_filter = $('#receivedFilter').val();
+                } class="row">
+        <div class="col-md-2">
             <label for="monthFilter">Month</label>
-            <input type="month" class="form-control" id="monthFilter" value="2025-06">
+            <input type="month" class="form-control" id="monthFilter" value="{{ date('Y-m') }}">
         </div>
-        <div class="col-md-3">
+        <div class="col-md-2">
+            <label for="yearFilter">Year</label>
+            <select class="form-control" id="yearFilter">
+                @for($year = date('Y'); $year >= date('Y') - 5; $year--)
+                    <option value="{{ $year }}" {{ $year == date('Y') ? 'selected' : '' }}>{{ $year }}</option>
+                @endfor
+            </select>
+        </div>
+        <div class="col-md-2">
             <label for="pendingFilter">Pending Amount</label>
             <select class="form-control" id="pendingFilter">
                 <option value="">All</option>
@@ -19,7 +32,7 @@
                 <option value=">0">Has Pending</option>
             </select>
         </div>
-        <div class="col-md-3">
+        <div class="col-md-2">
             <label for="receivedFilter">Received Amount</label>
             <select class="form-control" id="receivedFilter">
                 <option value="">All</option>
@@ -27,9 +40,10 @@
                 <option value=">0">Received</option>
             </select>
         </div>
-        <div class="col-md-3 text-end">
+        <div class="col-md-4 text-end">
             <br>
             <button class="btn btn-danger" id="filterBtn"><i class="fas fa-filter"></i> Filter</button>
+            <button class="btn btn-warning" id="clearFilterBtn"><i class="fas fa-clear"></i> Clear</button>
             <button class="btn btn-add text-white" id="createNewIncome"><i class="fas fa-plus"></i> Add Income</button>
         </div>
     </div>
@@ -77,7 +91,9 @@
         <div class="modal-content">
             <div class="modal-header">
                 <h5 class="modal-title" id="modelHeading"></h5>
-                <button type="button" class="btn-close" data-bs-dismiss="modal" aria-label="Close"></button>
+                <button type="button" class="close" data-dismiss="modal" aria-label="Close">
+                    <span aria-hidden="true">&times;</span>
+                </button>
             </div>
             <div class="modal-body">
                 <form id="incomeForm" name="incomeForm">
@@ -94,18 +110,42 @@
                     </div>
 
                     <div class="mb-3">
-                        <label for="total_amount" class="form-label">Total Amount</label>
-                        <input type="number" step="0.01" class="form-control" id="total_amount" name="total_amount" placeholder="Enter Total Amount" required>
+                        <label for="total_amount" class="form-label">
+                            <i class="fas fa-rupee-sign mr-1"></i>
+                            Total Amount
+                        </label>
+                        <div class="input-group">
+                            <div class="input-group-prepend">
+                                <span class="input-group-text"><i class="fas fa-rupee-sign"></i></span>
+                            </div>
+                            <input type="number" step="0.01" class="form-control" id="total_amount" name="total_amount" placeholder="Enter Total Amount" required>
+                        </div>
                     </div>
 
                     <div class="mb-3">
-                        <label for="pending_amount" class="form-label">Pending Amount</label>
-                        <input type="number" step="0.01" class="form-control" id="pending_amount" name="pending_amount" placeholder="Enter Pending Amount" value="0">
+                        <label for="pending_amount" class="form-label">
+                            <i class="fas fa-rupee-sign mr-1"></i>
+                            Pending Amount
+                        </label>
+                        <div class="input-group">
+                            <div class="input-group-prepend">
+                                <span class="input-group-text"><i class="fas fa-rupee-sign"></i></span>
+                            </div>
+                            <input type="number" step="0.01" class="form-control" id="pending_amount" name="pending_amount" placeholder="Enter Pending Amount" value="0">
+                        </div>
                     </div>
 
                     <div class="mb-3">
-                        <label for="received_amount" class="form-label">Received Amount</label>
-                        <input type="number" step="0.01" class="form-control" id="received_amount" name="received_amount" placeholder="Enter Received Amount" required>
+                        <label for="received_amount" class="form-label">
+                            <i class="fas fa-rupee-sign mr-1"></i>
+                            Received Amount
+                        </label>
+                        <div class="input-group">
+                            <div class="input-group-prepend">
+                                <span class="input-group-text"><i class="fas fa-rupee-sign"></i></span>
+                            </div>
+                            <input type="number" step="0.01" class="form-control" id="received_amount" name="received_amount" placeholder="Enter Received Amount" required>
+                        </div>
                     </div>
 
                     <div class="mb-3">
@@ -115,7 +155,7 @@
                 </form>
             </div>
             <div class="modal-footer">
-                <button type="button" class="btn btn-secondary" data-bs-dismiss="modal">Close</button>
+                <button type="button" class="btn btn-secondary" data-dismiss="modal">Close</button>
                 <button type="button" class="btn btn-primary" id="saveBtn">Save changes</button>
             </div>
         </div>
@@ -155,9 +195,15 @@
             },
             columns: [
                 {data: 'client_name', name: 'client_name'},
-                {data: 'total_amount', name: 'total_amount'},
-                {data: 'pending_amount', name: 'pending_amount'},
-                {data: 'received_amount', name: 'received_amount'},
+                {data: 'total_amount', name: 'total_amount', render: function(data, type, row) {
+                    return data; // This will render HTML as-is
+                }},
+                {data: 'pending_amount', name: 'pending_amount', render: function(data, type, row) {
+                    return data; // This will render HTML as-is
+                }},
+                {data: 'received_amount', name: 'received_amount', render: function(data, type, row) {
+                    return data; // This will render HTML as-is
+                }},
                 {data: 'date', name: 'date'},
                 {data: 'action', name: 'action', orderable: false, searchable: false}
             ],
@@ -170,9 +216,9 @@
                 var api = this.api();
                 var response = api.ajax.json();
                 if (response && response.totals) {
-                    $('#totalAmount').text(response.totals.total_amount);
-                    $('#totalPending').text(response.totals.total_pending);
-                    $('#totalReceived').text(response.totals.total_received);
+                    $('#totalAmount').html(response.totals.total_amount);
+                    $('#totalPending').html(response.totals.total_pending);
+                    $('#totalReceived').html(response.totals.total_received);
                 }
             }
         });
@@ -283,6 +329,17 @@
         // Filter functionality
         $('#filterBtn').click(function() {
             table.draw();
+            toastr.info('Filter applied');
+        });
+
+        // Clear filter functionality
+        $('#clearFilterBtn').click(function() {
+            $('#monthFilter').val('{{ date('Y-m') }}');
+            $('#yearFilter').val('{{ date('Y') }}');
+            $('#pendingFilter').val('');
+            $('#receivedFilter').val('');
+            table.draw();
+            toastr.info('Filters cleared');
         });
     });
 </script>

@@ -44,6 +44,7 @@ class ComposerStaticInit3b0caa79314c175e483fe142a55fbb80
         'ce9671a430e4846b44e1c68c7611f9f5' => __DIR__ . '/..' . '/mockery/mockery/library/Mockery.php',
         'd634523d799d97a8ab4807b650bf5cea' => __DIR__ . '/..' . '/pestphp/pest-plugin-laravel/src/Autoload.php',
         '0b47d6d4a00ca9112ba3953b49e7c9a4' => __DIR__ . '/..' . '/yajra/laravel-datatables-oracle/src/helper.php',
+        'b4e3f29b106af37a2bb239f73cdf68c7' => __DIR__ . '/../..' . '/app/helpers.php',
     );
 
     public static $prefixLengthsPsr4 = array (
@@ -607,6 +608,8 @@ class ComposerStaticInit3b0caa79314c175e483fe142a55fbb80
     );
 
     public static $classMap = array (
+        'App\\Console\\Commands\\SendPendingTaskReminders' => __DIR__ . '/../..' . '/app/Console/Commands/SendPendingTaskReminders.php',
+        'App\\Console\\Commands\\SendWebsiteDevelopmentUpdates' => __DIR__ . '/../..' . '/app/Console/Commands/SendWebsiteDevelopmentUpdates.php',
         'App\\Http\\Controllers\\Auth\\AuthenticatedSessionController' => __DIR__ . '/../..' . '/app/Http/Controllers/Auth/AuthenticatedSessionController.php',
         'App\\Http\\Controllers\\Auth\\ConfirmablePasswordController' => __DIR__ . '/../..' . '/app/Http/Controllers/Auth/ConfirmablePasswordController.php',
         'App\\Http\\Controllers\\Auth\\EmailVerificationNotificationController' => __DIR__ . '/../..' . '/app/Http/Controllers/Auth/EmailVerificationNotificationController.php',
@@ -626,7 +629,10 @@ class ComposerStaticInit3b0caa79314c175e483fe142a55fbb80
         'App\\Http\\Controllers\\ProfileController' => __DIR__ . '/../..' . '/app/Http/Controllers/ProfileController.php',
         'App\\Http\\Controllers\\WebsiteController' => __DIR__ . '/../..' . '/app/Http/Controllers/WebsiteController.php',
         'App\\Http\\Requests\\Auth\\LoginRequest' => __DIR__ . '/../..' . '/app/Http/Requests/Auth/LoginRequest.php',
+        'App\\Http\\Requests\\EmailRequest' => __DIR__ . '/../..' . '/app/Http/Requests/EmailRequest.php',
         'App\\Http\\Requests\\ProfileUpdateRequest' => __DIR__ . '/../..' . '/app/Http/Requests/ProfileUpdateRequest.php',
+        'App\\Mail\\PendingTaskReminder' => __DIR__ . '/../..' . '/app/Mail/PendingTaskReminder.php',
+        'App\\Mail\\WebsiteDevelopmentUpdate' => __DIR__ . '/../..' . '/app/Mail/WebsiteDevelopmentUpdate.php',
         'App\\Models\\Client' => __DIR__ . '/../..' . '/app/Models/Client.php',
         'App\\Models\\Email' => __DIR__ . '/../..' . '/app/Models/Email.php',
         'App\\Models\\Expense' => __DIR__ . '/../..' . '/app/Models/Expense.php',

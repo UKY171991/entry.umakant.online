@@ -49,6 +49,7 @@
                 </div>
                 <div class="modal-body">
                     <form id="expenseForm" name="expenseForm" class="form-horizontal">
+                        @csrf
                         <input type="hidden" name="expense_id" id="expense_id">
                         <div class="form-group">
                             <label for="expense_name" class="col-sm-4 control-label">Expense Name</label>
@@ -58,9 +59,17 @@
                         </div>
 
                         <div class="form-group">
-                            <label for="amount" class="col-sm-4 control-label">Amount</label>
+                            <label for="amount" class="col-sm-4 control-label">
+                                <i class="fas fa-rupee-sign mr-1"></i>
+                                Amount
+                            </label>
                             <div class="col-sm-12">
-                                <input type="number" step="0.01" class="form-control" id="amount" name="amount" placeholder="Enter Amount" value="" required="">
+                                <div class="input-group">
+                                    <div class="input-group-prepend">
+                                        <span class="input-group-text"><i class="fas fa-rupee-sign"></i></span>
+                                    </div>
+                                    <input type="number" step="0.01" class="form-control" id="amount" name="amount" placeholder="Enter Amount" value="" required="">
+                                </div>
                             </div>
                         </div>
 
@@ -123,10 +132,11 @@
                          }
                      },
                 columns: [
-
                     {data: 'sr_no', name: 'sr_no', orderable: false, searchable: false},
                     {data: 'expense_name', name: 'expense_name'},
-                    {data: 'amount', name: 'amount'},
+                    {data: 'amount', name: 'amount', render: function(data, type, row) {
+                        return data; // This will render HTML as-is
+                    }},
                     {data: 'category', name: 'category'},
                     {data: 'date', name: 'date'},
                     { data: 'action', name: 'action', orderable: false, searchable: false },

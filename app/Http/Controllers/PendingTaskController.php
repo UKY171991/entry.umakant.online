@@ -72,11 +72,18 @@ class PendingTaskController extends Controller
                     'task_name' => $task->task_name,
                     'client_name' => $task->client ? $task->client->name : 'N/A',
                     'description' => substr($task->description, 0, 50) . '...',
-                    'due_date' => $task->due_date->format('Y-m-d'),
+                    'due_date' => date('Y-m-d', strtotime($task->due_date)),
                     'status' => $statusBadge,
-                    'payment' => '₹' . number_format($task->payment, 2),
+                    'payment' => '<span class="currency-amount currency-positive"><i class="fas fa-rupee-sign rupee-icon"></i>' . number_format($task->payment, 2) . '</span>',
                     'payment_status' => $paymentBadge,
-                    'action' => '<button type="button" class="btn btn-info btn-sm editTask" data-id="'.$task->id.'"><i class="fas fa-edit"></i> Edit</button> <button type="button" class="btn btn-danger btn-sm deleteTask" data-id="'.$task->id.'"><i class="fas fa-trash"></i> Delete</button>'
+                    'action' => '<div class="btn-group" role="group">
+                        <button type="button" class="btn btn-info btn-sm editTask" data-id="'.$task->id.'" title="Edit Task">
+                            <i class="fas fa-edit"></i>
+                        </button>
+                        <button type="button" class="btn btn-danger btn-sm deleteTask" data-id="'.$task->id.'" title="Delete Task">
+                            <i class="fas fa-trash"></i>
+                        </button>
+                    </div>'
                 ];
             }
 
@@ -125,6 +132,7 @@ class PendingTaskController extends Controller
             [
                 'task_name' => $request->task_name,
                 'client_id' => $request->client_id,
+                'client_name' => Client::find($request->client_id)->name ?? 'N/A',
                 'description' => $request->description,
                 'due_date' => $request->due_date,
                 'status' => $request->status,
@@ -185,6 +193,7 @@ class PendingTaskController extends Controller
         $task->update([
             'task_name' => $request->task_name,
             'client_id' => $request->client_id,
+            'client_name' => Client::find($request->client_id)->name ?? 'N/A',
             'description' => $request->description,
             'due_date' => $request->due_date,
             'status' => $request->status,

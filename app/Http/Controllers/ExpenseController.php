@@ -14,29 +14,50 @@ class ExpenseController extends Controller
     public function index(Request $request)
     {
         if ($request->ajax()) {
+            $data = Expense::orderBy('created_at', 'desc');
 
+            // Apply filters
+            if ($request->has('month') && $request->month) {
+                $data->whereRaw('strftime("%Y-%m", date) = ?', [$request->month]);
+            }
 
-            $data = Expense::orderBy('created_at', 'desc')->select('*');
+            if ($request->has('year') && $request->year) {
+                $data->whereRaw('strftime("%Y", date) = ?', [$request->year]);
+            }
+
+            if ($request->has('category') && $request->category) {
+                $data->where('category', 'like', '%' . $request->category . '%');
+            }
+
+            if ($request->has('expense_name') && $request->expense_name) {
+                $data->where('expense_name', 'like', '%' . $request->expense_name . '%');
+            }
 
              try {
                  return DataTables::of($data)
                      ->addIndexColumn()
                      ->addColumn('amount', function($row) {
-                         return '₹' . number_format($row->amount, 2);
+                         return '<span class="currency-amount currency-negative"><i class="fas fa-rupee-sign rupee-icon"></i>' . number_format($row->amount, 2) . '</span>';
                      })
                      ->addColumn('action', function($row){
-                         $editBtn = '<a href="javascript:void(0)" data-toggle="tooltip" data-id="' . $row->id . '" data-original-title="Edit" class="edit btn btn-primary btn-sm editExpense">Edit</a>';
-                         $deleteBtn = '<a href="javascript:void(0)" data-toggle="tooltip" data-id="' . $row->id . '" data-original-title="Delete" class="btn btn-danger btn-sm deleteExpense">Delete</a>';
-                         return $editBtn . ' ' . $deleteBtn;
+                         return '<div class="btn-group" role="group">
+                             <button type="button" class="btn btn-info btn-sm editExpense" data-id="'.$row->id.'" title="Edit Expense">
+                                 <i class="fas fa-edit"></i>
+                             </button>
+                             <button type="button" class="btn btn-danger btn-sm deleteExpense" data-id="'.$row->id.'" title="Delete Expense">
+                                 <i class="fas fa-trash"></i>
+                             </button>
+                         </div>';
                      })
-                     ->rawColumns(['action'])
+                     ->rawColumns(['action', 'amount'])
                      ->make(true);
              } catch (\Exception $e) {
                  return response()->json(['error' => $e->getMessage(), 'trace' => $e->getTraceAsString()], 500);
              }
         }
 
-        return view('expenses.index_new');
+        $totalExpenses = Expense::sum('amount');
+        return view('expenses.index_new', compact('totalExpenses'));
     }
 
     /**

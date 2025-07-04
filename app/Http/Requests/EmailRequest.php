@@ -16,6 +16,11 @@ class EmailRequest extends FormRequest
         return [
             'email' => 'required|email|max:255',
             'client_name' => 'required|string|max:255',
+            'email_template' => 'nullable|string|max:50',
+            'project_name' => 'nullable|string|max:255',
+            'estimated_cost' => 'nullable|numeric|min:0',
+            'timeframe' => 'nullable|string|max:100',
+            'notes' => 'nullable|string|max:1000',
         ];
     }
 }

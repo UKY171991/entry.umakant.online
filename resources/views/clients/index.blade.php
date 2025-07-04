@@ -18,7 +18,7 @@
         </div>
         <div class="col-md-3 text-end">
             <button class="btn btn-danger" id="filterBtn"><i class="fas fa-filter"></i> Filter</button>
-            <button class="btn btn-add text-white" id="createNewClient"><i class="fas fa-plus"></i> Add Client</button>
+            <button class="btn btn-success" id="createNewClient"><i class="fas fa-plus"></i> Add Client</button>
         </div>
     </div>
 </div>
@@ -48,40 +48,66 @@
 @endsection
 
 @section('modals')
-<!-- Modal -->
-<div class="modal fade" id="ajaxModel" tabindex="-1" aria-hidden="true">
-    <div class="modal-dialog">
+<!-- Add/Edit Client Modal -->
+<div class="modal fade" id="ajaxModel" tabindex="-1" role="dialog" aria-labelledby="modelHeading" aria-hidden="true">
+    <div class="modal-dialog" role="document">
         <div class="modal-content">
             <div class="modal-header">
-                <h5 class="modal-title" id="modelHeading"></h5>
-                <button type="button" class="btn-close" data-bs-dismiss="modal" aria-label="Close"></button>
+                <h4 class="modal-title" id="modelHeading">
+                    <i class="fas fa-user-plus mr-2"></i>
+                    Add New Client
+                </h4>
+                <button type="button" class="close" data-dismiss="modal" aria-label="Close">
+                    <span aria-hidden="true">&times;</span>
+                </button>
             </div>
             <div class="modal-body">
                 <form id="clientForm" name="clientForm">
+                    @csrf
                     <input type="hidden" name="client_id" id="client_id">
                     
-                    <div class="mb-3">
-                        <label for="name" class="form-label">Client Name</label>
+                    <div class="form-group">
+                        <label for="name">
+                            <i class="fas fa-user mr-1"></i>
+                            Client Name <span class="text-danger">*</span>
+                        </label>
                         <input type="text" class="form-control" id="name" name="name" placeholder="Enter Client Name" maxlength="100" required>
                     </div>
 
-                    <div class="mb-3">
-                        <label for="email" class="form-label">Email</label>
-                        <input type="email" class="form-control" id="email" name="email" placeholder="Enter Email" required>
-                    </div>                        <div class="mb-3">
-                            <label for="phone" class="form-label">Phone</label>
-                            <input type="text" class="form-control" id="phone" name="phone" placeholder="Enter Phone Number" maxlength="20" required>
-                        </div>
+                    <div class="form-group">
+                        <label for="email">
+                            <i class="fas fa-envelope mr-1"></i>
+                            Email <span class="text-danger">*</span>
+                        </label>
+                        <input type="email" class="form-control" id="email" name="email" placeholder="Enter Email Address" required>
+                    </div>
+                    
+                    <div class="form-group">
+                        <label for="phone">
+                            <i class="fas fa-phone mr-1"></i>
+                            Phone <span class="text-danger">*</span>
+                        </label>
+                        <input type="text" class="form-control" id="phone" name="phone" placeholder="Enter Phone Number" maxlength="20" required>
+                    </div>
 
-                        <div class="mb-3">
-                            <label for="address" class="form-label">Address</label>
-                            <input type="text" class="form-control" id="address" name="address" placeholder="Enter Address" maxlength="255">
-                        </div>
+                    <div class="form-group">
+                        <label for="address">
+                            <i class="fas fa-map-marker-alt mr-1"></i>
+                            Address
+                        </label>
+                        <textarea class="form-control" id="address" name="address" rows="3" placeholder="Enter Address (Optional)" maxlength="255"></textarea>
+                    </div>
                 </form>
             </div>
-            <div class="modal-footer">
-                <button type="button" class="btn btn-secondary" data-bs-dismiss="modal">Close</button>
-                <button type="button" class="btn btn-primary" id="saveBtn">Save changes</button>
+            <div class="modal-footer justify-content-between">
+                <button type="button" class="btn btn-default" data-dismiss="modal">
+                    <i class="fas fa-times mr-1"></i>
+                    Cancel
+                </button>
+                <button type="button" class="btn btn-primary" id="saveBtn" value="create-client">
+                    <i class="fas fa-save mr-1"></i>
+                    Save Client
+                </button>
             </div>
         </div>
     </div>
@@ -90,6 +116,35 @@
 
 @section('styles')
     <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/toastr.js/latest/toastr.min.css">
+    <style>
+        /* Button group styling for action columns */
+        .btn-group .btn {
+            border-radius: 0;
+            margin: 0;
+        }
+        .btn-group .btn:first-child {
+            border-top-left-radius: 4px;
+            border-bottom-left-radius: 4px;
+        }
+        .btn-group .btn:last-child {
+            border-top-right-radius: 4px;
+            border-bottom-right-radius: 4px;
+        }
+        .btn-group .btn + .btn {
+            border-left: 1px solid rgba(255,255,255,0.2);
+        }
+        /* Ensure consistent button sizing */
+        .btn-group .btn-sm {
+            padding: 0.25rem 0.5rem;
+            font-size: 0.75rem;
+            min-width: 32px;
+        }
+        /* Action column styling */
+        .data-table td:last-child {
+            text-align: center;
+            white-space: nowrap;
+        }
+    </style>
 @endsection
 
 @section('scripts')
@@ -137,8 +192,9 @@
                 $('#saveBtn').val("create-client");
                 $('#client_id').val('');
                 $('#clientForm').trigger("reset");
-                $('#modelHeading').html("Create New Client");
+                $('#modelHeading').html('<i class="fas fa-user-plus mr-2"></i> Add New Client');
                 $('#ajaxModel').modal('show');
+                toastr.info('Ready to add new client');
             });
 
             // Reset modal state on close
@@ -146,21 +202,24 @@
                 $('#clientForm').trigger("reset");
                 $('#client_id').val('');
                 $('#saveBtn').val("create-client");
-                $('#modelHeading').html("Create New Client");
+                $('#saveBtn').html('<i class="fas fa-save mr-1"></i> Save Client');
+                $('#modelHeading').html('<i class="fas fa-user-plus mr-2"></i> Add New Client');
             });
 
             // Edit Client
             $('body').on('click', '.editClient', function () {
                 var client_id = $(this).data('id');
                 $.get("/clients/" + client_id + '/edit', function (data) {
-                    $('#modelHeading').html("Edit Client");
+                    $('#modelHeading').html('<i class="fas fa-user-edit mr-2"></i> Edit Client');
                     $('#saveBtn').val("edit-client");
+                    $('#saveBtn').html('<i class="fas fa-save mr-1"></i> Update Client');
                     $('#ajaxModel').modal('show');
                     $('#client_id').val(data.id);
                     $('#name').val(data.name);
                     $('#email').val(data.email);
                     $('#phone').val(data.phone);
                     $('#address').val(data.address);
+                    toastr.info('Client data loaded for editing');
                 })
                 .fail(function(xhr) {
                     let message = xhr.responseJSON && xhr.responseJSON.message ? xhr.responseJSON.message : 'Error loading client data';
@@ -206,7 +265,11 @@
                         }
                     },
                     complete: function() {
-                        saveBtn.html(originalText);
+                        if (saveBtn.val() === "edit-client") {
+                            saveBtn.html('<i class="fas fa-save mr-1"></i> Update Client');
+                        } else {
+                            saveBtn.html('<i class="fas fa-save mr-1"></i> Save Client');
+                        }
                         saveBtn.prop('disabled', false);
                     }
                 });

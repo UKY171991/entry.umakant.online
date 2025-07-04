@@ -11,15 +11,15 @@ Route::view('/dashboard', 'dashboard')
     ->middleware(['auth', 'verified'])
     ->name('dashboard');
 
-Route::resource('clients', App\Http\Controllers\ClientController::class)
-    ->middleware(['auth', 'verified']);
+Route::resource('clients', App\Http\Controllers\ClientController::class);
 
-Route::resource('incomes', App\Http\Controllers\IncomeController::class)
-    ->middleware(['auth', 'verified']);
+Route::resource('incomes', App\Http\Controllers\IncomeController::class);
 
 Route::resource('expenses', App\Http\Controllers\ExpenseController::class);
 
 Route::post('emails/send/{id}', [App\Http\Controllers\EmailController::class, 'sendEmail'])->name('emails.send');
+Route::post('emails/template-preview', [App\Http\Controllers\EmailController::class, 'templatePreview'])->name('emails.template-preview');
+Route::post('emails/send-template', [App\Http\Controllers\EmailController::class, 'sendTemplate'])->name('emails.send-template');
 Route::resource('emails', App\Http\Controllers\EmailController::class);
 
 Route::post('/send-website-development-update-email', [App\Http\Controllers\EmailController::class, 'sendWebsiteDevelopmentUpdateEmail']);
@@ -39,6 +39,7 @@ Route::get('/test-email', function () {
 });
 
 Route::resource('websites', App\Http\Controllers\WebsiteController::class);
+Route::post('websites/{id}/test', [App\Http\Controllers\WebsiteController::class, 'testWebsite'])->name('websites.test');
 Route::resource('pending-tasks', App\Http\Controllers\PendingTaskController::class);
 
 Route::middleware('auth')->group(function () {

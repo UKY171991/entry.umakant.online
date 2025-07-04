@@ -70,7 +70,14 @@ class ClientController extends Controller
                     'email' => $client->email,
                     'phone' => $client->phone,
                     'address' => $client->address ?? 'N/A',
-                    'action' => '<button type="button" class="btn btn-info btn-sm editClient" data-id="'.$client->id.'"><i class="fas fa-edit"></i> Edit</button> <button type="button" class="btn btn-danger btn-sm deleteClient" data-id="'.$client->id.'"><i class="fas fa-trash"></i> Delete</button>'
+                    'action' => '<div class="btn-group" role="group">
+                        <button type="button" class="btn btn-info btn-sm editClient" data-id="'.$client->id.'" title="Edit Client">
+                            <i class="fas fa-edit"></i>
+                        </button>
+                        <button type="button" class="btn btn-danger btn-sm deleteClient" data-id="'.$client->id.'" title="Delete Client">
+                            <i class="fas fa-trash"></i>
+                        </button>
+                    </div>'
                 ];
             }
 

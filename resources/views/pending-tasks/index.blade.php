@@ -4,59 +4,63 @@
 @section('page-title', 'Pending Tasks')
 
 @section('content')
-<!-- Header Section -->
-<div class="header-section mb-4">
-    <div class="row align-items-center">
-        <div class="col">
-            <h1 class="h3 mb-0 text-gray-800">Pending Tasks</h1>
-        </div>
-        <div class="col-auto">
-            <button class="btn btn-primary" id="createNewTask">
-                <i class="fas fa-plus"></i> Add Task
-            </button>
-        </div>
-    </div>
-</div>
-
-<!-- Data Section -->
-<div class="card shadow mb-4">
-    <div class="card-header py-3">
-        <h6 class="m-0 font-weight-bold text-primary">Pending Tasks List</h6>
-    </div>
-    <div class="card-body">
-        <div class="table-responsive">
-            <table class="table table-bordered data-table" id="dataTable" width="100%" cellspacing="0">
-                <thead>
-                    <tr>
-                        <th>#</th>
-                        <th>Image</th>
-                        <th>Task Name</th>
-                        <th>Client Name</th>
-                        <th>Description</th>
-                        <th>Due Date</th>
-                        <th>Status</th>
-                        <th>Payment</th>
-                        <th>Pay Status</th>
-                        <th>Actions</th>
-                    </tr>
-                </thead>
-                <tfoot>
-                    <tr>
-                        <th>#</th>
-                        <th>Image</th>
-                        <th>Task Name</th>
-                        <th>Client Name</th>
-                        <th>Description</th>
-                        <th>Due Date</th>
-                        <th>Status</th>
-                        <th>Payment</th>
-                        <th>Pay Status</th>
-                        <th>Actions</th>
-                    </tr>
-                </tfoot>
-                <tbody>
-                </tbody>
-            </table>
+<!-- Main content -->
+<div class="row">
+    <div class="col-12">
+        <!-- Table Section -->
+        <div class="card">
+            <div class="card-header">
+                <h3 class="card-title">
+                    <i class="fas fa-tasks mr-1"></i>
+                    Pending Tasks List
+                </h3>
+                <div class="card-tools">
+                    <button class="btn btn-success btn-sm" id="createNewTask">
+                        <i class="fas fa-plus"></i> Add Task
+                    </button>
+                    <button type="button" class="btn btn-tool" data-card-widget="maximize">
+                        <i class="fas fa-expand"></i>
+                    </button>
+                    <button type="button" class="btn btn-tool" data-card-widget="collapse">
+                        <i class="fas fa-minus"></i>
+                    </button>
+                </div>
+            </div>
+            <div class="card-body">
+                <table id="dataTable" class="table table-bordered table-striped">
+                    <thead>
+                        <tr>
+                            <th>#</th>
+                            <th>Image</th>
+                            <th>Task Name</th>
+                            <th>Client Name</th>
+                            <th>Description</th>
+                            <th>Due Date</th>
+                            <th>Status</th>
+                            <th>Payment</th>
+                            <th>Pay Status</th>
+                            <th width="150px">Actions</th>
+                        </tr>
+                    </thead>
+                    <tbody>
+                        <!-- Data will be populated by DataTables -->
+                    </tbody>
+                    <tfoot>
+                        <tr>
+                            <th>#</th>
+                            <th>Image</th>
+                            <th>Task Name</th>
+                            <th>Client Name</th>
+                            <th>Description</th>
+                            <th>Due Date</th>
+                            <th>Status</th>
+                            <th>Payment</th>
+                            <th>Pay Status</th>
+                            <th>Actions</th>
+                        </tr>
+                    </tfoot>
+                </table>
+            </div>
         </div>
     </div>
 </div>
@@ -68,8 +72,13 @@
     <div class="modal-dialog modal-lg">
         <div class="modal-content">
             <div class="modal-header">
-                <h5 class="modal-title" id="modelHeading"></h5>
-                <button type="button" class="btn-close" data-bs-dismiss="modal" aria-label="Close"></button>
+                <h4 class="modal-title" id="modelHeading">
+                    <i class="fas fa-tasks mr-2"></i>
+                    Add New Task
+                </h4>
+                <button type="button" class="close" data-dismiss="modal" aria-label="Close">
+                    <span aria-hidden="true">&times;</span>
+                </button>
             </div>
             <div class="modal-body">
                 <form id="taskForm" name="taskForm" enctype="multipart/form-data">
@@ -79,14 +88,20 @@
                     
                     <div class="row">
                         <div class="col-md-6">
-                            <div class="mb-3">
-                                <label for="task_name" class="form-label">Task Name</label>
+                            <div class="form-group">
+                                <label for="task_name">
+                                    <i class="fas fa-clipboard-list mr-1"></i>
+                                    Task Name <span class="text-danger">*</span>
+                                </label>
                                 <input type="text" class="form-control" id="task_name" name="task_name" placeholder="Enter Task Name" maxlength="255" required>
                             </div>
                         </div>
                         <div class="col-md-6">
-                            <div class="mb-3">
-                                <label for="client_id" class="form-label">Client</label>
+                            <div class="form-group">
+                                <label for="client_id">
+                                    <i class="fas fa-user mr-1"></i>
+                                    Client <span class="text-danger">*</span>
+                                </label>
                                 <select class="form-control" id="client_id" name="client_id" required>
                                     <option value="">Select Client</option>
                                     @foreach($clients as $client)
@@ -97,21 +112,30 @@
                         </div>
                     </div>
 
-                    <div class="mb-3">
-                        <label for="description" class="form-label">Description</label>
+                    <div class="form-group">
+                        <label for="description">
+                            <i class="fas fa-align-left mr-1"></i>
+                            Description <span class="text-danger">*</span>
+                        </label>
                         <textarea class="form-control" id="description" name="description" rows="3" placeholder="Enter Description" required></textarea>
                     </div>
 
                     <div class="row">
                         <div class="col-md-6">
-                            <div class="mb-3">
-                                <label for="due_date" class="form-label">Due Date</label>
+                            <div class="form-group">
+                                <label for="due_date">
+                                    <i class="fas fa-calendar mr-1"></i>
+                                    Due Date <span class="text-danger">*</span>
+                                </label>
                                 <input type="date" class="form-control" id="due_date" name="due_date" required>
                             </div>
                         </div>
                         <div class="col-md-6">
-                            <div class="mb-3">
-                                <label for="status" class="form-label">Status</label>
+                            <div class="form-group">
+                                <label for="status">
+                                    <i class="fas fa-flag mr-1"></i>
+                                    Status <span class="text-danger">*</span>
+                                </label>
                                 <select class="form-control" id="status" name="status" required>
                                     <option value="">Select Status</option>
                                     <option value="Pending">Pending</option>
@@ -124,14 +148,25 @@
 
                     <div class="row">
                         <div class="col-md-6">
-                            <div class="mb-3">
-                                <label for="payment" class="form-label">Payment</label>
-                                <input type="number" step="0.01" class="form-control" id="payment" name="payment" placeholder="0.00">
+                            <div class="form-group">
+                                <label for="payment">
+                                    <i class="fas fa-rupee-sign mr-1"></i>
+                                    Payment Amount
+                                </label>
+                                <div class="input-group">
+                                    <div class="input-group-prepend">
+                                        <span class="input-group-text"><i class="fas fa-rupee-sign"></i></span>
+                                    </div>
+                                    <input type="number" step="0.01" class="form-control" id="payment" name="payment" placeholder="0.00">
+                                </div>
                             </div>
                         </div>
                         <div class="col-md-6">
-                            <div class="mb-3">
-                                <label for="payment_status" class="form-label">Payment Status</label>
+                            <div class="form-group">
+                                <label for="payment_status">
+                                    <i class="fas fa-credit-card mr-1"></i>
+                                    Payment Status <span class="text-danger">*</span>
+                                </label>
                                 <select class="form-control" id="payment_status" name="payment_status" required>
                                     <option value="">Select Payment Status</option>
                                     <option value="Paid">Paid</option>
@@ -141,8 +176,11 @@
                         </div>
                     </div>
 
-                    <div class="mb-3">
-                        <label for="image" class="form-label">Task Image</label>
+                    <div class="form-group">
+                        <label for="image">
+                            <i class="fas fa-image mr-1"></i>
+                            Task Image
+                        </label>
                         <input type="file" class="form-control" id="image" name="image" accept="image/*">
                         <small class="form-text text-muted">Upload an image for this task (optional)</small>
                         <div id="current_image_container" class="mt-2" style="display: none;">
@@ -153,27 +191,25 @@
                 </form>
             </div>
             <div class="modal-footer">
-                <button type="button" class="btn btn-secondary" data-bs-dismiss="modal">Close</button>
-                <button type="button" class="btn btn-primary" id="saveBtn">Save changes</button>
+                <button type="button" class="btn btn-secondary" data-dismiss="modal">
+                    <i class="fas fa-times mr-1"></i> Close
+                </button>
+                <button type="button" class="btn btn-primary" id="saveBtn">
+                    <i class="fas fa-save mr-1"></i> Save Changes
+                </button>
             </div>
         </div>
     </div>
 </div>
 @endsection
 
-@section('styles')
-    <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/toastr.js/latest/toastr.min.css">
-@endsection
-
 @section('scripts')
-    <link rel="stylesheet" href="https://cdn.datatables.net/1.10.21/css/dataTables.bootstrap4.min.css">
-    <script src="https://cdnjs.cloudflare.com/ajax/libs/toastr.js/latest/toastr.min.js"></script>
-    <script src="https://cdn.datatables.net/1.10.21/js/jquery.dataTables.min.js"></script>
-    <script src="https://cdn.datatables.net/1.10.21/js/dataTables.bootstrap4.min.js"></script>
+    <!-- SweetAlert2 -->
+    <script src="https://cdn.jsdelivr.net/npm/sweetalert2@11"></script>
     <script>
         $(function () {
             // DataTable configuration with CSRF token and error handling
-            var table = $('.data-table').DataTable({
+            var table = $('#dataTable').DataTable({
                 processing: true,
                 serverSide: true,
                 ajax: {
@@ -199,7 +235,9 @@
                     {data: 'description', name: 'description'},
                     {data: 'due_date', name: 'due_date'},
                     {data: 'status', name: 'status'},
-                    {data: 'payment', name: 'payment'},
+                    {data: 'payment', name: 'payment', render: function(data, type, row) {
+                        return data; // This will render HTML as-is
+                    }},
                     {data: 'payment_status', name: 'payment_status'},
                     {data: 'action', name: 'action', orderable: false, searchable: false}
                 ],
@@ -214,7 +252,7 @@
                 $('#saveBtn').val("create-task");
                 $('#task_id').val('');
                 $('#taskForm').trigger("reset");
-                $('#modelHeading').html("Create New Task");
+                $('#modelHeading').html('<i class="fas fa-tasks mr-2"></i> Create New Task');
                 $('#ajaxModel').modal('show');
                 $('#current_image_container').hide();
             });
@@ -224,7 +262,7 @@
                 var task_id = $(this).data('id');
                 $.get("/pending-tasks/" + task_id + '/edit', function (data) {
                     console.log('Data received for edit:', data); // Add this line for debugging
-                    $('#modelHeading').html("Edit Task");
+                    $('#modelHeading').html('<i class="fas fa-edit mr-2"></i> Edit Task');
                     $('#saveBtn').val("edit-task");
                     $('#ajaxModel').modal('show');
                     $('#task_id').val(data.id);
@@ -301,24 +339,46 @@
                 });
             });
 
-            // Delete Task
+            // Delete Task with SweetAlert confirmation
             $('body').on('click', '.deleteTask', function () {
                 var task_id = $(this).data("id");
-                if(confirm("Are you sure you want to delete this task?")) {
-                    $.ajax({
-                        type: "DELETE",
-                        url: "/pending-tasks/" + task_id,
-                        data: { _token: $('meta[name="csrf-token"]').attr('content') },
-                        success: function (data) {
-                            table.draw();
-                            toastr.success(data.success || data.message || 'Task deleted successfully');
-                        },
-                        error: function (xhr) {
-                            let message = xhr.responseJSON && xhr.responseJSON.message ? xhr.responseJSON.message : 'An error occurred';
-                            toastr.error(message);
-                        }
-                    });
-                }
+                
+                Swal.fire({
+                    title: 'Are you sure?',
+                    text: "You won't be able to revert this!",
+                    icon: 'warning',
+                    showCancelButton: true,
+                    confirmButtonColor: '#d33',
+                    cancelButtonColor: '#3085d6',
+                    confirmButtonText: 'Yes, delete it!',
+                    cancelButtonText: 'Cancel'
+                }).then((result) => {
+                    if (result.isConfirmed) {
+                        $.ajax({
+                            type: "DELETE",
+                            url: "/pending-tasks/" + task_id,
+                            data: {
+                                _token: $('meta[name="csrf-token"]').attr('content')
+                            },
+                            success: function (data) {
+                                table.draw();
+                                Swal.fire(
+                                    'Deleted!',
+                                    data.success || 'Task has been deleted.',
+                                    'success'
+                                );
+                            },
+                            error: function (xhr) {
+                                let message = xhr.responseJSON && xhr.responseJSON.message ? xhr.responseJSON.message : 'An error occurred';
+                                Swal.fire(
+                                    'Error!',
+                                    message,
+                                    'error'
+                                );
+                            }
+                        });
+                    }
+                });
             });
 
             // Filter functionality

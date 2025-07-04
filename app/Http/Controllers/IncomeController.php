@@ -57,6 +57,11 @@ class IncomeController extends Controller
                 $query->whereRaw('strftime("%Y-%m", date) = ?', [$request->month]);
             }
 
+            if ($request->has('year') && $request->year) {
+                // Use SQLite compatible date formatting for year
+                $query->whereRaw('strftime("%Y", date) = ?', [$request->year]);
+            }
+
             if ($request->has('pending_filter') && $request->pending_filter !== '') {
                 if ($request->pending_filter === '0') {
                     $query->where('pending_amount', 0);
@@ -88,11 +93,18 @@ class IncomeController extends Controller
                     'id' => $income->id,
                     'client_name' => $income->client ? $income->client->name : 'N/A',
                     'client_id' => $income->client_id,
-                    'total_amount' => '₹' . number_format($income->total_amount, 2),
-                    'pending_amount' => '₹' . number_format($income->pending_amount, 2),
-                    'received_amount' => '₹' . number_format($income->received_amount, 2),
+                    'total_amount' => '<span class="currency-amount currency-positive"><i class="fas fa-rupee-sign rupee-icon"></i>' . number_format($income->total_amount, 2) . '</span>',
+                    'pending_amount' => '<span class="currency-amount currency-warning"><i class="fas fa-rupee-sign rupee-icon"></i>' . number_format($income->pending_amount, 2) . '</span>',
+                    'received_amount' => '<span class="currency-amount currency-info"><i class="fas fa-rupee-sign rupee-icon"></i>' . number_format($income->received_amount, 2) . '</span>',
                     'date' => date('m/d/Y', strtotime($income->date)),
-                    'action' => '<button type="button" class="btn btn-primary btn-sm editIncome" data-id="'.$income->id.'"><i class="fas fa-edit"></i> Edit</button> <button type="button" class="btn btn-danger btn-sm deleteIncome" data-id="'.$income->id.'"><i class="fas fa-trash"></i> Delete</button>'
+                    'action' => '<div class="btn-group" role="group" aria-label="Income Actions">
+                        <button type="button" class="btn btn-info btn-sm editIncome" data-id="'.$income->id.'" title="Edit Income">
+                            <i class="fas fa-edit"></i>
+                        </button>
+                        <button type="button" class="btn btn-danger btn-sm deleteIncome" data-id="'.$income->id.'" title="Delete Income">
+                            <i class="fas fa-trash"></i>
+                        </button>
+                    </div>'
                 ];
             }
 
@@ -109,15 +121,15 @@ class IncomeController extends Controller
                 "recordsFiltered" => intval($filteredRecords),
                 "data" => $data,
                 "totals" => [
-                    'total_amount' => '₹' . number_format($totals->total_amount ?? 0, 2),
-                    'total_pending' => '₹' . number_format($totals->total_pending ?? 0, 2),
-                    'total_received' => '₹' . number_format($totals->total_received ?? 0, 2)
+                    'total_amount' => '<span class="currency-amount currency-positive"><i class="fas fa-rupee-sign rupee-icon"></i>' . number_format($totals->total_amount ?? 0, 2) . '</span>',
+                    'total_pending' => '<span class="currency-amount currency-warning"><i class="fas fa-rupee-sign rupee-icon"></i>' . number_format($totals->total_pending ?? 0, 2) . '</span>',
+                    'total_received' => '<span class="currency-amount currency-info"><i class="fas fa-rupee-sign rupee-icon"></i>' . number_format($totals->total_received ?? 0, 2) . '</span>'
                 ]
             ]);
         }
 
         $clients = Client::all();
-        return view('incomes.simple', compact('clients'));
+        return view('incomes.index', compact('clients'));
     }
 
     public function create()
@@ -152,8 +164,6 @@ class IncomeController extends Controller
 
     public function show(string $id)
     {
-        // Default ordering by created_at in descending order
-        $query->orderBy('created_at', 'desc');
         $income = Income::with('client')->find($id);
         if (!$income) {
             return response()->json(['error' => 'Income not found'], 404);

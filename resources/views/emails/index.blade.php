@@ -47,32 +47,146 @@
 @endsection
 
 @section('modals')
-<!-- Modal -->
-<div class="modal fade" id="ajaxModel" tabindex="-1" aria-hidden="true">
-    <div class="modal-dialog">
+<!-- Add/Edit Email Modal -->
+<div class="modal fade" id="ajaxModel" tabindex="-1" role="dialog" aria-labelledby="modelHeading" aria-hidden="true">
+    <div class="modal-dialog modal-lg" role="document">
         <div class="modal-content">
             <div class="modal-header">
-                <h5 class="modal-title" id="modelHeading"></h5>
-                <button type="button" class="btn-close" data-bs-dismiss="modal" aria-label="Close"></button>
+                <h4 class="modal-title" id="modelHeading">
+                    <i class="fas fa-envelope mr-2"></i>
+                    Add New Email
+                </h4>
+                <button type="button" class="close" data-dismiss="modal" aria-label="Close">
+                    <span aria-hidden="true">&times;</span>
+                </button>
             </div>
             <div class="modal-body">
                 <form id="emailForm" name="emailForm">
+                    @csrf
                     <input type="hidden" name="email_id" id="email_id">
                     
-                    <div class="mb-3">
-                        <label for="client_name" class="form-label">Client Name</label>
-                        <input type="text" class="form-control" id="client_name" name="client_name" placeholder="Enter Client Name" required>
+                    <div class="row">
+                        <div class="col-md-6">
+                            <div class="form-group">
+                                <label for="client_name">
+                                    <i class="fas fa-user mr-1"></i>
+                                    Client Name <span class="text-danger">*</span>
+                                </label>
+                                <input type="text" class="form-control" id="client_name" name="client_name" placeholder="Enter Client Name" maxlength="100" required>
+                            </div>
+                        </div>
+                        <div class="col-md-6">
+                            <div class="form-group">
+                                <label for="email">
+                                    <i class="fas fa-envelope mr-1"></i>
+                                    Email <span class="text-danger">*</span>
+                                </label>
+                                <input type="email" class="form-control" id="email" name="email" placeholder="Enter Email Address" required>
+                            </div>
+                        </div>
                     </div>
-
-                    <div class="mb-3">
-                        <label for="email" class="form-label">Email</label>
-                        <input type="email" class="form-control" id="email" name="email" placeholder="Enter Email" required>
+                    
+                    <div class="form-group">
+                        <label for="email_template">
+                            <i class="fas fa-file-alt mr-1"></i>
+                            Email Template
+                        </label>
+                        <select class="form-control" id="email_template" name="email_template">
+                            <option value="">Select a Template (Optional)</option>
+                            <option value="website_proposal">🚀 Website Development Proposal</option>
+                            <option value="project_update">📈 Project Status Update</option>
+                            <option value="project_completion">🎉 Project Completion</option>
+                            <option value="general_inquiry">📧 General Business Inquiry</option>
+                            <option value="follow_up">📞 Follow-up Email</option>
+                        </select>
+                        <small class="form-text text-muted">Choose a pre-designed template for professional communication</small>
+                    </div>
+                    
+                    <div class="form-group">
+                        <label for="project_name">
+                            <i class="fas fa-project-diagram mr-1"></i>
+                            Project Name
+                        </label>
+                        <input type="text" class="form-control" id="project_name" name="project_name" placeholder="Enter Project Name (if applicable)">
+                    </div>
+                    
+                    <div class="row">
+                        <div class="col-md-6">
+                            <div class="form-group">
+                                <label for="estimated_cost">
+                                    <i class="fas fa-rupee-sign mr-1"></i>
+                                    Estimated Cost (₹)
+                                </label>
+                                <input type="number" class="form-control" id="estimated_cost" name="estimated_cost" placeholder="Enter estimated cost">
+                            </div>
+                        </div>
+                        <div class="col-md-6">
+                            <div class="form-group">
+                                <label for="timeframe">
+                                    <i class="fas fa-clock mr-1"></i>
+                                    Timeframe
+                                </label>
+                                <input type="text" class="form-control" id="timeframe" name="timeframe" placeholder="e.g., 2-3 weeks">
+                            </div>
+                        </div>
+                    </div>
+                    
+                    <div class="form-group">
+                        <label for="notes">
+                            <i class="fas fa-sticky-note mr-1"></i>
+                            Additional Notes
+                        </label>
+                        <textarea class="form-control" id="notes" name="notes" rows="3" placeholder="Add any additional notes or requirements"></textarea>
                     </div>
                 </form>
             </div>
+            <div class="modal-footer justify-content-between">
+                <button type="button" class="btn btn-default" data-dismiss="modal">
+                    <i class="fas fa-times mr-1"></i>
+                    Cancel
+                </button>
+                <div>
+                    <button type="button" class="btn btn-info" id="previewBtn">
+                        <i class="fas fa-eye mr-1"></i>
+                        Preview Template
+                    </button>
+                    <button type="button" class="btn btn-primary" id="saveBtn" value="create-email">
+                        <i class="fas fa-save mr-1"></i>
+                        Save Email
+                    </button>
+                </div>
+            </div>
+        </div>
+    </div>
+</div>
+
+<!-- Template Preview Modal -->
+<div class="modal fade" id="templatePreviewModal" tabindex="-1" role="dialog" aria-labelledby="templatePreviewHeading" aria-hidden="true">
+    <div class="modal-dialog modal-xl" role="document">
+        <div class="modal-content">
+            <div class="modal-header">
+                <h4 class="modal-title" id="templatePreviewHeading">
+                    <i class="fas fa-eye mr-2"></i>
+                    Email Template Preview
+                </h4>
+                <button type="button" class="close" data-dismiss="modal" aria-label="Close">
+                    <span aria-hidden="true">&times;</span>
+                </button>
+            </div>
+            <div class="modal-body">
+                <div id="templatePreviewContent">
+                    <!-- Template preview will be loaded here -->
+                </div>
+            </div>
             <div class="modal-footer">
-                <button type="button" class="btn btn-secondary" data-bs-dismiss="modal">Close</button>
-                <button type="button" class="btn btn-primary" id="saveBtn">Save changes</button>
+                <button type="button" class="btn btn-secondary" data-dismiss="modal">
+                    <i class="fas fa-times mr-1"></i>
+                    Close Preview
+                </button>
+                <button type="button" class="btn btn-success" id="sendTemplateBtn">
+                    <i class="fas fa-paper-plane mr-1"></i>
+                    Send Email
+                </button>
             </div>
         </div>
     </div>
@@ -81,6 +195,56 @@
 
 @section('styles')
     <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/toastr.js/latest/toastr.min.css">
+    <style>
+        .btn-add {
+            background: linear-gradient(135deg, #667eea 0%, #764ba2 100%);
+            border: none;
+            color: white;
+            box-shadow: 0 2px 4px rgba(0,0,0,0.1);
+        }
+        .btn-add:hover {
+            background: linear-gradient(135deg, #5a6fd8 0%, #6a4190 100%);
+            color: white;
+            transform: translateY(-1px);
+            box-shadow: 0 4px 8px rgba(0,0,0,0.15);
+        }
+        .filter-section {
+            background: #f8f9fa;
+            padding: 20px;
+            border-radius: 10px;
+            margin-bottom: 20px;
+            box-shadow: 0 2px 4px rgba(0,0,0,0.05);
+        }
+        .table-section {
+            background: white;
+            padding: 20px;
+            border-radius: 10px;
+            box-shadow: 0 2px 10px rgba(0,0,0,0.08);
+        }
+        .table-header {
+            background: linear-gradient(135deg, #667eea 0%, #764ba2 100%);
+            color: white;
+        }
+        .modal-xl {
+            max-width: 90%;
+        }
+        .template-preview {
+            border: 1px solid #dee2e6;
+            border-radius: 8px;
+            padding: 15px;
+            background: #f8f9fa;
+        }
+        .email-template-card {
+            border: 1px solid #e3f2fd;
+            border-radius: 8px;
+            padding: 15px;
+            margin: 10px 0;
+            background: linear-gradient(135deg, #e3f2fd 0%, #f3e5f5 100%);
+        }
+        .form-group label i {
+            color: #667eea;
+        }
+    </style>
 @endsection
 
 @section('scripts')
@@ -137,6 +301,105 @@
                 $('#email_id').val('');
                 $('#saveBtn').val("create-email");
                 $('#modelHeading').html("Create New Email");
+                // Clear all form fields explicitly
+                $('#client_name').val('');
+                $('#email').val('');
+                $('#email_template').val('');
+                $('#project_name').val('');
+                $('#estimated_cost').val('');
+                $('#timeframe').val('');
+                $('#notes').val('');
+            });
+
+            // Template Preview
+            $('#previewBtn').click(function () {
+                var template = $('#email_template').val();
+                var clientName = $('#client_name').val() || 'Client Name';
+                var projectName = $('#project_name').val() || 'Your Project';
+                var estimatedCost = $('#estimated_cost').val() || '50000';
+                var timeframe = $('#timeframe').val() || '2-3 weeks';
+                var notes = $('#notes').val() || '';
+                
+                if (!template) {
+                    toastr.warning('Please select a template to preview');
+                    return;
+                }
+                
+                // Show template preview modal
+                $('#templatePreviewModal').modal('show');
+                $('#templatePreviewContent').html('<div class="text-center"><i class="fas fa-spinner fa-spin fa-2x"></i><br>Loading preview...</div>');
+                
+                // Load template preview
+                $.ajax({
+                    url: '/emails/template-preview',
+                    type: 'POST',
+                    data: {
+                        template: template,
+                        client_name: clientName,
+                        project_name: projectName,
+                        estimated_cost: estimatedCost,
+                        timeframe: timeframe,
+                        notes: notes,
+                        _token: $('meta[name="csrf-token"]').attr('content')
+                    },
+                    success: function(response) {
+                        $('#templatePreviewContent').html(response);
+                    },
+                    error: function(xhr) {
+                        $('#templatePreviewContent').html('<div class="alert alert-danger">Error loading template preview</div>');
+                    }
+                });
+            });
+
+            // Send Template Email
+            $('#sendTemplateBtn').click(function () {
+                var template = $('#email_template').val();
+                var clientName = $('#client_name').val();
+                var email = $('#email').val();
+                var projectName = $('#project_name').val();
+                var estimatedCost = $('#estimated_cost').val();
+                var timeframe = $('#timeframe').val();
+                var notes = $('#notes').val();
+                
+                if (!template || !email) {
+                    toastr.warning('Please select a template and enter an email address');
+                    return;
+                }
+                
+                if(confirm('Send email to ' + email + ' using the selected template?')) {
+                    var sendBtn = $(this);
+                    var originalText = sendBtn.html();
+                    sendBtn.html('<i class="fas fa-spinner fa-spin"></i> Sending...');
+                    sendBtn.prop('disabled', true);
+                    
+                    $.ajax({
+                        url: '/emails/send-template',
+                        type: 'POST',
+                        data: {
+                            template: template,
+                            email: email,
+                            client_name: clientName,
+                            project_name: projectName,
+                            estimated_cost: estimatedCost,
+                            timeframe: timeframe,
+                            notes: notes,
+                            _token: $('meta[name="csrf-token"]').attr('content')
+                        },
+                        success: function(response) {
+                            toastr.success('Email sent successfully!');
+                            $('#templatePreviewModal').modal('hide');
+                            $('#ajaxModel').modal('hide');
+                        },
+                        error: function(xhr) {
+                            var message = xhr.responseJSON && xhr.responseJSON.message ? xhr.responseJSON.message : 'Error sending email';
+                            toastr.error(message);
+                        },
+                        complete: function() {
+                            sendBtn.html(originalText);
+                            sendBtn.prop('disabled', false);
+                        }
+                    });
+                }
             });
 
             // Edit Email
@@ -149,6 +412,11 @@
                     $('#email_id').val(data.id);
                     $('#client_name').val(data.client_name);
                     $('#email').val(data.email);
+                    $('#email_template').val(data.email_template);
+                    $('#project_name').val(data.project_name);
+                    $('#estimated_cost').val(data.estimated_cost);
+                    $('#timeframe').val(data.timeframe);
+                    $('#notes').val(data.notes);
                 })
                 .fail(function(xhr) {
                     let message = xhr.responseJSON && xhr.responseJSON.message ? xhr.responseJSON.message : 'Error loading email data';

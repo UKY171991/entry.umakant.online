@@ -60,7 +60,20 @@ class WebsiteController extends Controller
                     'website_url' => $website->website_url,
                     'status' => $statusBadge,
                     'last_updated' => $website->last_updated ? $website->last_updated->format('m-d-Y H:i:s A') : 'N/A',
-                    'action' => '<button type="button" class="btn btn-warning btn-sm editWebsite" data-id="'.$website->id.'"><i class="fas fa-edit"></i> Edit</button> <button type="button" class="btn btn-secondary btn-sm viewWebsite" data-url="'.$website->website_url.'"><i class="fas fa-eye"></i> View</button> <button type="button" class="btn btn-primary btn-sm testWebsite" data-id="'.$website->id.'"><i class="fas fa-vial"></i> Test</button>'
+                    'action' => '<div class="btn-group" role="group">
+                        <button type="button" class="btn btn-warning btn-sm editWebsite" data-id="'.$website->id.'" title="Edit Website">
+                            <i class="fas fa-edit"></i>
+                        </button>
+                        <button type="button" class="btn btn-secondary btn-sm viewWebsite" data-url="'.$website->website_url.'" title="View Website">
+                            <i class="fas fa-eye"></i>
+                        </button>
+                        <button type="button" class="btn btn-primary btn-sm testWebsite" data-id="'.$website->id.'" title="Test Website">
+                            <i class="fas fa-vial"></i>
+                        </button>
+                        <button type="button" class="btn btn-danger btn-sm deleteWebsite" data-id="'.$website->id.'" title="Delete Website">
+                            <i class="fas fa-trash"></i>
+                        </button>
+                    </div>'
                 ];
             }
 
@@ -98,6 +111,7 @@ class WebsiteController extends Controller
             ['id' => $request->website_id],
             [
                 'client_id' => $request->client_id,
+                'client_name' => Client::find($request->client_id)->name ?? 'N/A',
                 'website_url' => $request->website_url,
                 'status' => $request->status,
                 'last_updated' => now(),
@@ -131,6 +145,7 @@ class WebsiteController extends Controller
 
         $website->update([
             'client_id' => $request->client_id,
+            'client_name' => Client::find($request->client_id)->name ?? 'N/A',
             'website_url' => $request->website_url,
             'status' => $request->status,
             'last_updated' => now(),
@@ -143,6 +158,35 @@ class WebsiteController extends Controller
     {
         $website = Website::find($id);
         return response()->json($website);
+    }
+
+    public function testWebsite($id)
+    {
+        $website = Website::findOrFail($id);
+        
+        try {
+            // Test website using HTTP client
+            $response = \Illuminate\Support\Facades\Http::timeout(10)->get($website->website_url);
+            
+            if ($response->successful()) {
+                $website->status = 'UP';
+                $status = 'UP - Website is accessible';
+            } else {
+                $website->status = 'DOWN';
+                $status = 'DOWN - HTTP Error: ' . $response->status();
+            }
+        } catch (\Exception $e) {
+            $website->status = 'DOWN';
+            $status = 'DOWN - Connection failed: ' . $e->getMessage();
+        }
+        
+        $website->save();
+        
+        return response()->json([
+            'success' => 'Website test completed',
+            'status' => $status,
+            'website_status' => $website->status
+        ]);
     }
 
     public function destroy(string $id)

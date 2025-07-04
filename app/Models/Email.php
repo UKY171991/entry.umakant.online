@@ -13,6 +13,11 @@ class Email extends Model
         'client_id',
         'client_name',
         'email',
+        'email_template',
+        'project_name',
+        'estimated_cost',
+        'timeframe',
+        'notes',
     ];
 
     public function client()
