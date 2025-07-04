@@ -89,6 +89,14 @@ class ExpenseController extends Controller
 
 
     /**
+     * Update the specified resource in storage.
+     */
+    public function update(Request $request, Expense $expense)
+    {
+        return $this->store($request);
+    }
+
+    /**
      * Remove the specified resource from storage.
      */
     public function destroy($id)
