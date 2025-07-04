@@ -104,7 +104,10 @@
                     </a>
                 </nav>
                 <div class="mt-auto p-3">
-                    <button class="btn btn-outline-light btn-sm w-100">Logout</button>
+                    <form method="POST" action="{{ route('logout') }}">
+                        @csrf
+                        <button class="btn btn-outline-light btn-sm w-100">Logout</button>
+                    </form>
                 </div>
             </div>
             
