@@ -21,6 +21,9 @@ class ExpenseController extends Controller
              try {
                  return DataTables::of($data)
                      ->addIndexColumn()
+                     ->addColumn('amount', function($row) {
+                         return '₹' . number_format($row->amount, 2);
+                     })
                      ->addColumn('action', function($row){
                          $editBtn = '<a href="javascript:void(0)" data-toggle="tooltip" data-id="' . $row->id . '" data-original-title="Edit" class="edit btn btn-primary btn-sm editExpense">Edit</a>';
                          $deleteBtn = '<a href="javascript:void(0)" data-toggle="tooltip" data-id="' . $row->id . '" data-original-title="Delete" class="btn btn-danger btn-sm deleteExpense">Delete</a>';

@@ -74,7 +74,7 @@ class PendingTaskController extends Controller
                     'description' => substr($task->description, 0, 50) . '...',
                     'due_date' => $task->due_date->format('Y-m-d'),
                     'status' => $statusBadge,
-                    'payment' => number_format($task->payment, 2),
+                    'payment' => '₹' . number_format($task->payment, 2),
                     'payment_status' => $paymentBadge,
                     'action' => '<button type="button" class="btn btn-info btn-sm editTask" data-id="'.$task->id.'"><i class="fas fa-edit"></i> Edit</button> <button type="button" class="btn btn-danger btn-sm deleteTask" data-id="'.$task->id.'"><i class="fas fa-trash"></i> Delete</button>'
                 ];

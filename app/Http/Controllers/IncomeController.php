@@ -88,9 +88,9 @@ class IncomeController extends Controller
                     'id' => $income->id,
                     'client_name' => $income->client ? $income->client->name : 'N/A',
                     'client_id' => $income->client_id,
-                    'total_amount' => number_format($income->total_amount, 2),
-                    'pending_amount' => number_format($income->pending_amount, 2),
-                    'received_amount' => number_format($income->received_amount, 2),
+                    'total_amount' => '₹' . number_format($income->total_amount, 2),
+                    'pending_amount' => '₹' . number_format($income->pending_amount, 2),
+                    'received_amount' => '₹' . number_format($income->received_amount, 2),
                     'date' => date('m/d/Y', strtotime($income->date)),
                     'action' => '<button type="button" class="btn btn-primary btn-sm editIncome" data-id="'.$income->id.'"><i class="fas fa-edit"></i> Edit</button> <button type="button" class="btn btn-danger btn-sm deleteIncome" data-id="'.$income->id.'"><i class="fas fa-trash"></i> Delete</button>'
                 ];
@@ -109,9 +109,9 @@ class IncomeController extends Controller
                 "recordsFiltered" => intval($filteredRecords),
                 "data" => $data,
                 "totals" => [
-                    'total_amount' => number_format($totals->total_amount ?? 0, 2),
-                    'total_pending' => number_format($totals->total_pending ?? 0, 2),
-                    'total_received' => number_format($totals->total_received ?? 0, 2)
+                    'total_amount' => '₹' . number_format($totals->total_amount ?? 0, 2),
+                    'total_pending' => '₹' . number_format($totals->total_pending ?? 0, 2),
+                    'total_received' => '₹' . number_format($totals->total_received ?? 0, 2)
                 ]
             ]);
         }
