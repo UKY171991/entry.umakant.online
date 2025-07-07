@@ -66,6 +66,9 @@ class EmailController extends Controller
                 
                 if ($email->phone) {
                     $sendButtons .= '
+                        <button type="button" class="btn btn-warning btn-sm previewWhatsApp" data-id="'.$email->id.'" title="Preview WhatsApp Message">
+                            <i class="fas fa-eye"></i>
+                        </button>
                         <button type="button" class="btn btn-success btn-sm sendWhatsApp" data-id="'.$email->id.'" data-phone="'.$email->phone.'" title="Send WhatsApp">
                             <i class="fab fa-whatsapp"></i>
                         </button>';

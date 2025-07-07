@@ -15,39 +15,72 @@
             });
 
             // Preview WhatsApp Message
-            $('#previewWhatsAppBtn').click(function () {
-                var template = $('#email_template').val();
-                var clientName = $('#client_name').val() || 'Valued Client';
-                var projectName = $('#project_name').val() || 'Your Project';
-                var estimatedCost = $('#estimated_cost').val() || '50000';
-                var timeframe = $('#timeframe').val() || '1-2 months';
-                var notes = $('#notes').val() || '';
+            $('body').on('click', '.previewWhatsApp', function () {
+                var email_id = $(this).data('id');
                 
-                if (!template) {
-                    toastr.warning('Please select a template to preview');
-                    return;
-                }
+                // Show loading toast
+                toastr.info('Generating WhatsApp message preview...', 'Please wait');
                 
-                $.ajax({
-                    url: '/emails/whatsapp-message',
-                    type: 'POST',
-                    data: {
-                        template: template,
-                        client_name: clientName,
-                        project_name: projectName,
-                        estimated_cost: estimatedCost,
-                        timeframe: timeframe,
-                        notes: notes,
-                        _token: $('meta[name="csrf-token"]').attr('content')
-                    },
-                    success: function(response) {
-                        // Show WhatsApp message in a modal or alert
-                        alert('WhatsApp Message Preview:\n\n' + response.message);
-                    },
-                    error: function(xhr) {
-                        var message = xhr.responseJSON && xhr.responseJSON.message ? xhr.responseJSON.message : 'Error generating WhatsApp message';
-                        toastr.error(message);
-                    }
+                // Get the email record to generate WhatsApp message
+                $.get("/emails/" + email_id + '/edit', function (data) {
+                    var template = data.email_template || 'general_inquiry';
+                    var clientName = data.client_name || 'Valued Client';
+                    var projectName = data.project_name || 'Your Project';
+                    var estimatedCost = data.estimated_cost || '50000';
+                    var timeframe = data.timeframe || '1-2 months';
+                    var notes = data.notes || '';
+                    
+                    // Generate WhatsApp message
+                    $.ajax({
+                        url: '/emails/whatsapp-message',
+                        type: 'POST',
+                        data: {
+                            template: template,
+                            client_name: clientName,
+                            project_name: projectName,
+                            estimated_cost: estimatedCost,
+                            timeframe: timeframe,
+                            notes: notes,
+                            _token: $('meta[name="csrf-token"]').attr('content')
+                        },
+                        success: function(response) {
+                            // Show message in a modal or alert
+                            var previewHtml = '<div class="whatsapp-preview">' +
+                                '<h5><i class="fab fa-whatsapp text-success"></i> WhatsApp Message Preview</h5>' +
+                                '<div class="alert alert-info">' +
+                                '<pre style="white-space: pre-wrap; font-family: Arial, sans-serif;">' + 
+                                response.message + 
+                                '</pre>' +
+                                '</div>' +
+                                '<p class="text-muted"><small>This message will be pre-filled when you click the WhatsApp button.</small></p>' +
+                                '</div>';
+                            
+                            // Create a simple modal using SweetAlert or just alert
+                            // For now using a styled alert
+                            var modalContent = $('<div>').html(previewHtml);
+                            
+                            // Simple modal display
+                            if (typeof Swal !== 'undefined') {
+                                Swal.fire({
+                                    html: previewHtml,
+                                    width: '600px',
+                                    showConfirmButton: true,
+                                    confirmButtonText: 'Close Preview'
+                                });
+                            } else {
+                                // Fallback to a simple alert with formatted text
+                                alert('WhatsApp Message Preview:\n\n' + response.message);
+                            }
+                        },
+                        error: function(xhr) {
+                            var message = xhr.responseJSON && xhr.responseJSON.message ? xhr.responseJSON.message : 'Error generating WhatsApp message';
+                            toastr.error(message);
+                        }
+                    });
+                })
+                .fail(function(xhr) {
+                    let message = xhr.responseJSON && xhr.responseJSON.message ? xhr.responseJSON.message : 'Error loading email data';
+                    toastr.error(message);
                 });
             });
 
@@ -622,6 +655,9 @@
                 var email_id = $(this).data('id');
                 var phone_number = $(this).data('phone');
                 
+                // Show loading toast
+                toastr.info('Preparing WhatsApp message...', 'Please wait');
+                
                 // First get the email record to generate WhatsApp message
                 $.get("/emails/" + email_id + '/edit', function (data) {
                     var template = data.email_template || 'general_inquiry';
@@ -646,8 +682,17 @@
                         },
                         success: function(response) {
                             var message = encodeURIComponent(response.message);
-                            var whatsappUrl = 'https://wa.me/' + phone_number.replace(/[^0-9]/g, '') + '?text=' + message;
+                            var cleanPhone = phone_number.replace(/[^0-9]/g, '');
+                            var whatsappUrl = 'https://wa.me/' + cleanPhone + '?text=' + message;
+                            
+                            // Open WhatsApp
                             window.open(whatsappUrl, '_blank');
+                            
+                            // Show success message with instructions
+                            toastr.success('WhatsApp opened! Message is pre-filled - just click Send in WhatsApp.', 'WhatsApp Ready', {
+                                timeOut: 5000,
+                                extendedTimeOut: 2000
+                            });
                             
                             // Update the WhatsApp sent timestamp
                             $.ajax({
@@ -657,11 +702,11 @@
                                     _token: $('meta[name="csrf-token"]').attr('content')
                                 },
                                 success: function(updateResponse) {
-                                    toastr.success('WhatsApp message sent and logged!');
-                                    table.draw(false); // Refresh table to show updated timestamp
+                                    // Refresh table to show updated timestamp
+                                    table.draw(false);
                                 },
                                 error: function(xhr) {
-                                    toastr.warning('WhatsApp opened but failed to log timestamp');
+                                    console.log('Failed to update timestamp:', xhr.responseText);
                                 }
                             });
                         },
