@@ -37,6 +37,7 @@
                     <th>UPDATED AT</th>
                     <th>Action</th>
                     <th>Send Email</th>
+                    <th>Send WhatsApp</th>
                 </tr>
             </thead>
             <tbody>
