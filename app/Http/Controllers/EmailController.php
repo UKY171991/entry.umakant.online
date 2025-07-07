@@ -160,16 +160,8 @@ class EmailController extends Controller
         ]);
     }
 
-    public function update(Request $request, string $id)
+    public function update(EmailRequest $request, string $id)
     {
-        $validator = Validator::make($request->all(), [
-            'email' => 'required|email|max:255',
-        ]);
-
-        if ($validator->fails()) {
-            return response()->json(['errors' => $validator->errors()], 422);
-        }
-
         $email = Email::find($id);
         if (!$email) {
             return response()->json(['error' => 'Email not found'], 404);
