@@ -155,7 +155,7 @@
     </div>
     
     <div class="footer">
-        <p>📧 uky171991@gmail.com | 📱 +91-9453619260 | 🌐 https://codeapka.com</p>
+        <p>📧 uky171991@gmail.com | 📱 +91-9453619260 | 💬 WhatsApp: +91-9453619260 | 🌐 https://codeapka.com</p>
         <p>© {{ date('Y') }} CodeApka. All rights reserved.</p>
     </div>
 </body>

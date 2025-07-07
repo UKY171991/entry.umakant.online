@@ -371,13 +371,13 @@
             <p>This is an important update regarding your website development project. We are making great progress and wanted to share the latest.</p>
             <p>{{ $body }}</p>
             <p>We are committed to delivering a high-quality product and appreciate your continued partnership.</p>
-            <p>If you have any questions or require further information, please do not hesitate to contact us at <strong>+91-9453619260</strong> or <strong>uky171991@gmail.com</strong>.</p>
+            <p>If you have any questions or require further information, please do not hesitate to contact us at <strong>+91-9453619260</strong>, <strong>uky171991@gmail.com</strong>, or WhatsApp us at <strong>+91-9453619260</strong>.</p>
             <p>Sincerely,</p>
             <p>CodeApka Development Team</p>
             <p><a href="https://codeapka.com" class="button">Visit Our Website</a></p>
         </div>
         <div class="footer">
-            &copy; {{ date('Y') }} CodeApka. All rights reserved. | 📧 uky171991@gmail.com | 📱 +91-9453619260 | 🌐 https://codeapka.com
+            &copy; {{ date('Y') }} CodeApka. All rights reserved. | 📧 uky171991@gmail.com | 📱 +91-9453619260 | 💬 WhatsApp: +91-9453619260 | 🌐 https://codeapka.com
         </div>
     </div>
 </body>

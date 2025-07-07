@@ -177,7 +177,7 @@
         
         <p>Thank you for choosing us for your web development needs. It has been a pleasure working with you, and we're proud of what we've accomplished together.</p>
         
-        <p>If you have any questions, need assistance, or would like to discuss future enhancements, please don't hesitate to contact us at <strong>+91-9453619260</strong> or <strong>uky171991@gmail.com</strong>.</p>
+        <p>If you have any questions, need assistance, or would like to discuss future enhancements, please don't hesitate to contact us at <strong>+91-9453619260</strong>, <strong>uky171991@gmail.com</strong>, or WhatsApp us at <strong>+91-9453619260</strong>.</p>
         
         <p>Congratulations again on your new website!</p>
         
@@ -186,7 +186,7 @@
     </div>
     
     <div class="footer">
-        <p>📧 uky171991@gmail.com | 📱 +91-9453619260 | 🌐 https://codeapka.com</p>
+        <p>📧 uky171991@gmail.com | 📱 +91-9453619260 | 💬 WhatsApp: +91-9453619260 | 🌐 https://codeapka.com</p>
         <p>© {{ date('Y') }} CodeApka. All rights reserved.</p>
         <p>🌟 Thank you for trusting us with your web development project! 🌟</p>
     </div>

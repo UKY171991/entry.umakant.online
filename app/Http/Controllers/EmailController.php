@@ -287,6 +287,12 @@ class EmailController extends Controller
                 case 'follow_up':
                     return view('emails.templates.general_inquiry', compact('clientName'))->render();
                     
+                case 'pathology_management':
+                    return view('emails.templates.pathology_management', compact('clientName', 'projectName', 'estimatedCost', 'timeframe', 'notes'))->render();
+                    
+                case 'hospital_management':
+                    return view('emails.templates.hospital_management', compact('clientName', 'projectName', 'estimatedCost', 'timeframe', 'notes'))->render();
+                    
                 default:
                     return '<div class="alert alert-info">Template preview not available for this template type.</div>';
             }
@@ -346,6 +352,14 @@ class EmailController extends Controller
                 case 'general_inquiry':
                 case 'follow_up':
                     Mail::to($email)->send(new \App\Mail\GeneralInquiry($clientName));
+                    break;
+                    
+                case 'pathology_management':
+                    Mail::to($email)->send(new \App\Mail\PathologyManagement($clientName, $projectName, $estimatedCost, $timeframe, $notes));
+                    break;
+                    
+                case 'hospital_management':
+                    Mail::to($email)->send(new \App\Mail\HospitalManagement($clientName, $projectName, $estimatedCost, $timeframe, $notes));
                     break;
                     
                 default:

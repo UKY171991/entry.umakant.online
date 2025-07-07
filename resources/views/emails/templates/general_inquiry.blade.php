@@ -93,7 +93,7 @@
             </a>
         </div>
         
-        <p>We'd love to discuss your project in detail and provide you with a customized proposal. Please feel free to call us at <strong>+91-9453619260</strong> or reply to this email with your project requirements.</p>
+        <p>We'd love to discuss your project in detail and provide you with a customized proposal. Please feel free to call us at <strong>+91-9453619260</strong>, WhatsApp us at <strong>+91-9453619260</strong>, or reply to this email with your project requirements.</p>
         
         <p><strong>Next Steps:</strong></p>
         <ol>
@@ -110,7 +110,7 @@
     </div>
     
     <div class="footer">
-        <p>📧 uky171991@gmail.com | 📱 +91-9453619260 | 🌐 https://codeapka.com</p>
+        <p>📧 uky171991@gmail.com | 📱 +91-9453619260 | 💬 WhatsApp: +91-9453619260 | 🌐 https://codeapka.com</p>
         <p>© {{ date('Y') }} CodeApka. All rights reserved.</p>
     </div>
 </body>

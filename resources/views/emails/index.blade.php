@@ -98,6 +98,8 @@
                             <option value="project_completion">🎉 Project Completion</option>
                             <option value="general_inquiry">📧 General Business Inquiry</option>
                             <option value="follow_up">📞 Follow-up Email</option>
+                            <option value="pathology_management">🔬 Pathology Management System</option>
+                            <option value="hospital_management">🏥 Hospital Management System</option>
                         </select>
                         <small class="form-text text-muted">Choose a pre-designed template for professional communication</small>
                     </div>

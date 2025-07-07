@@ -165,7 +165,8 @@
             <h3>📞 Questions or Feedback?</h3>
             <p>We value your input throughout the development process. If you have any questions, suggestions, or feedback, please don't hesitate to reach out. Your satisfaction is our top priority!</p>
             <p>📞 Call us: <strong>+91-9453619260</strong><br>
-            📧 Email us: <strong>uky171991@gmail.com</strong></p>
+            📧 Email us: <strong>uky171991@gmail.com</strong><br>
+            💬 WhatsApp us: <strong>+91-9453619260</strong></p>
         </div>
         
         <p>Thank you for choosing us for your web development needs. We're committed to delivering exceptional results and will keep you updated every step of the way.</p>
@@ -175,7 +176,7 @@
     </div>
     
     <div class="footer">
-        <p>📧 uky171991@gmail.com | 📱 +91-9453619260 | 🌐 https://codeapka.com</p>
+        <p>📧 uky171991@gmail.com | 📱 +91-9453619260 | 💬 WhatsApp: +91-9453619260 | 🌐 https://codeapka.com</p>
         <p>© {{ date('Y') }} CodeApka. All rights reserved.</p>
     </div>
 </body>
