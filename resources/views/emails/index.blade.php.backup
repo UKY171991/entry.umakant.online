@@ -14,13 +14,19 @@
             <input type="email" class="form-control" id="emailFilter" placeholder="Email">
         </div>
         <div class="col-md-3">
+            <button type="button" class="btn btn-primary" id="filterBtn">
+                <i class="fas fa-filter"></i> Filter
+            </button>
         </div>
-        <div class="col-md-3 text-end">
-            <button class="btn btn-danger" id="filterBtn"><i class="fas fa-filter"></i> Filter</button>
-            <button class="btn btn-add text-white" id="createNewEmail"><i class="fas fa-plus"></i> Add Email</button>
+        <div class="col-md-3 text-right">
+            <button type="button" class="btn btn-add" data-toggle="modal" data-target="#emailModal" id="addEmailBtn">
+                <i class="fas fa-plus"></i> Add Email
+            </button>
         </div>
     </div>
 </div>
+                });
+            });
 
 <!-- Table Section -->
 <div class="table-section">
@@ -605,31 +611,8 @@
                             _token: $('meta[name="csrf-token"]').attr('content')
                         },
                         success: function(response) {
-                            // Clean and format the message properly
-                            var message = response.message;
-                            
-                            // Clean phone number - ensure it starts with country code
-                            var cleanPhone = phone_number.replace(/[^0-9]/g, '');
-                            if (cleanPhone.startsWith('91') && cleanPhone.length === 12) {
-                                // Already has country code
-                                cleanPhone = cleanPhone;
-                            } else if (cleanPhone.length === 10) {
-                                // Add India country code
-                                cleanPhone = '91' + cleanPhone;
-                            }
-                            
-                            // Encode the message properly for URL
-                            var encodedMessage = encodeURIComponent(message);
-                            
-                            // Construct WhatsApp URL
-                            var whatsappUrl = 'https://wa.me/' + cleanPhone + '?text=' + encodedMessage;
-                            
-                            // Debug: Log the URL to console
-                            console.log('WhatsApp URL:', whatsappUrl);
-                            console.log('Message:', message);
-                            console.log('Phone:', cleanPhone);
-                            
-                            // Open WhatsApp
+                            var message = encodeURIComponent(response.message);
+                            var whatsappUrl = 'https://wa.me/' + phone_number.replace(/[^0-9]/g, '') + '?text=' + message;
                             window.open(whatsappUrl, '_blank');
                             
                             // Update the WhatsApp sent timestamp
@@ -660,98 +643,10 @@
                 });
             });
 
-            // Preview WhatsApp Message
-            $('body').on('click', '.previewWhatsApp', function () {
-                var email_id = $(this).data('id');
-                var phone_number = $(this).data('phone');
-                
-                // Get the email record to generate WhatsApp message
-                $.get("/emails/" + email_id + '/edit', function (data) {
-                    var template = data.email_template || 'general_inquiry';
-                    var clientName = data.client_name || 'Valued Client';
-                    var projectName = data.project_name || 'Your Project';
-                    var estimatedCost = data.estimated_cost || '50000';
-                    var timeframe = data.timeframe || '1-2 months';
-                    var notes = data.notes || '';
-                    
-                    // Generate WhatsApp message
-                    $.ajax({
-                        url: '/emails/whatsapp-message',
-                        type: 'POST',
-                        data: {
-                            template: template,
-                            client_name: clientName,
-                            project_name: projectName,
-                            estimated_cost: estimatedCost,
-                            timeframe: timeframe,
-                            notes: notes,
-                            _token: $('meta[name="csrf-token"]').attr('content')
-                        },
-                        success: function(response) {
-                            // Show message in a modal or alert for preview
-                            var messagePreview = response.message.replace(/\n/g, '<br>');
-                            
-                            // Create a bootstrap modal for preview
-                            var modalHtml = `
-                                <div class="modal fade" id="whatsappPreviewModal" tabindex="-1" role="dialog">
-                                    <div class="modal-dialog modal-lg" role="document">
-                                        <div class="modal-content">
-                                            <div class="modal-header bg-success text-white">
-                                                <h5 class="modal-title">
-                                                    <i class="fab fa-whatsapp mr-2"></i>WhatsApp Message Preview
-                                                </h5>
-                                                <button type="button" class="close text-white" data-dismiss="modal">
-                                                    <span>&times;</span>
-                                                </button>
-                                            </div>
-                                            <div class="modal-body">
-                                                <div class="alert alert-info">
-                                                    <strong>Phone Number:</strong> ${phone_number}
-                                                </div>
-                                                <div class="whatsapp-message-preview p-3" style="background: #e3f2fd; border-radius: 8px; font-family: 'Segoe UI', Tahoma, Geneva, Verdana, sans-serif;">
-                                                    ${messagePreview}
-                                                </div>
-                                            </div>
-                                            <div class="modal-footer">
-                                                <button type="button" class="btn btn-secondary" data-dismiss="modal">Close</button>
-                                                <button type="button" class="btn btn-success sendWhatsAppFromPreview" data-id="${email_id}" data-phone="${phone_number}">
-                                                    <i class="fab fa-whatsapp mr-1"></i>Send WhatsApp Message
-                                                </button>
-                                            </div>
-                                        </div>
-                                    </div>
-                                </div>
-                            `;
-                            
-                            // Remove existing modal if any
-                            $('#whatsappPreviewModal').remove();
-                            
-                            // Add modal to body and show
-                            $('body').append(modalHtml);
-                            $('#whatsappPreviewModal').modal('show');
-                        },
-                        error: function(xhr) {
-                            var message = xhr.responseJSON && xhr.responseJSON.message ? xhr.responseJSON.message : 'Error generating WhatsApp message';
-                            toastr.error(message);
-                        }
-                    });
-                })
-                .fail(function(xhr) {
-                    let message = xhr.responseJSON && xhr.responseJSON.message ? xhr.responseJSON.message : 'Error loading email data';
-                    toastr.error(message);
-                });
-            });
-
-            // Send WhatsApp from Preview Modal
-            $('body').on('click', '.sendWhatsAppFromPreview', function () {
-                var email_id = $(this).data('id');
-                var phone_number = $(this).data('phone');
-                
-                // Close the preview modal
-                $('#whatsappPreviewModal').modal('hide');
-                
-                // Trigger the regular WhatsApp send
-                $('.sendWhatsApp[data-id="' + email_id + '"]').trigger('click');
+            // Filter functionality
+            $('#filterBtn').click(function() {
+                table.draw();
+                toastr.info('Filter applied');
             });
         });
     </script>
