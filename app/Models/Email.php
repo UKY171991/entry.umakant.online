@@ -13,11 +13,19 @@ class Email extends Model
         'client_id',
         'client_name',
         'email',
+        'phone',
         'email_template',
         'project_name',
         'estimated_cost',
         'timeframe',
         'notes',
+        'last_email_sent_at',
+        'last_whatsapp_sent_at',
+    ];
+
+    protected $casts = [
+        'last_email_sent_at' => 'datetime',
+        'last_whatsapp_sent_at' => 'datetime',
     ];
 
     public function client()

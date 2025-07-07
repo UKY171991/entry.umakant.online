@@ -11,7 +11,47 @@
             <input type="text" class="form-control" id="clientFilter" placeholder="Client Name">
         </div>
         <div class="col-md-3">
-            <input type="email" class="form-control" id="emailFilter" placeholder="Email">
+            <input type="email" class="form-control"                 });
+            });
+
+            // Preview WhatsApp Message
+            $('#previewWhatsAppBtn').click(function () {
+                var template = $('#email_template').val();
+                var clientName = $('#client_name').val() || 'Valued Client';
+                var projectName = $('#project_name').val() || 'Your Project';
+                var estimatedCost = $('#estimated_cost').val() || '50000';
+                var timeframe = $('#timeframe').val() || '1-2 months';
+                var notes = $('#notes').val() || '';
+                
+                if (!template) {
+                    toastr.warning('Please select a template to preview');
+                    return;
+                }
+                
+                $.ajax({
+                    url: '/emails/whatsapp-message',
+                    type: 'POST',
+                    data: {
+                        template: template,
+                        client_name: clientName,
+                        project_name: projectName,
+                        estimated_cost: estimatedCost,
+                        timeframe: timeframe,
+                        notes: notes,
+                        _token: $('meta[name="csrf-token"]').attr('content')
+                    },
+                    success: function(response) {
+                        // Show WhatsApp message in a modal or alert
+                        alert('WhatsApp Message Preview:\n\n' + response.message);
+                    },
+                    error: function(xhr) {
+                        var message = xhr.responseJSON && xhr.responseJSON.message ? xhr.responseJSON.message : 'Error generating WhatsApp message';
+                        toastr.error(message);
+                    }
+                });
+            });
+
+            // Edit EmailemailFilter" placeholder="Email">
         </div>
         <div class="col-md-3">
         </div>
@@ -35,9 +75,10 @@
                     <th>CLIENT NAME</th>
                     <th>EMAIL</th>
                     <th>UPDATED AT</th>
-                    <th>Action</th>
-                    <th>Send Email</th>
-                    <th>Send WhatsApp</th>
+                    <th>LAST EMAIL SENT</th>
+                    <th>LAST WHATSAPP SENT</th>
+                    <th>Actions</th>
+                    <th>Send Messages</th>
                 </tr>
             </thead>
             <tbody>
@@ -67,7 +108,7 @@
                     <input type="hidden" name="email_id" id="email_id">
                     
                     <div class="row">
-                        <div class="col-md-6">
+                        <div class="col-md-4">
                             <div class="form-group">
                                 <label for="client_name">
                                     <i class="fas fa-user mr-1"></i>
@@ -76,15 +117,31 @@
                                 <input type="text" class="form-control" id="client_name" name="client_name" placeholder="Enter Client Name" maxlength="100" required>
                             </div>
                         </div>
-                        <div class="col-md-6">
+                        <div class="col-md-4">
                             <div class="form-group">
                                 <label for="email">
                                     <i class="fas fa-envelope mr-1"></i>
-                                    Email <span class="text-danger">*</span>
+                                    Email <span class="text-warning">*</span>
                                 </label>
-                                <input type="email" class="form-control" id="email" name="email" placeholder="Enter Email Address" required>
+                                <input type="email" class="form-control" id="email" name="email" placeholder="Enter Email Address">
+                                <small class="form-text text-muted">Required if no WhatsApp number</small>
                             </div>
                         </div>
+                        <div class="col-md-4">
+                            <div class="form-group">
+                                <label for="phone">
+                                    <i class="fas fa-phone mr-1"></i>
+                                    WhatsApp Number <span class="text-warning">*</span>
+                                </label>
+                                <input type="tel" class="form-control" id="phone" name="phone" placeholder="Enter WhatsApp Number (with country code)" maxlength="20">
+                                <small class="form-text text-muted">Required if no email. Format: +91XXXXXXXXXX</small>
+                            </div>
+                        </div>
+                    </div>
+                    
+                    <div class="alert alert-info">
+                        <i class="fas fa-info-circle mr-2"></i>
+                        <strong>Note:</strong> You must provide either an Email address OR WhatsApp number (or both).
                     </div>
                     
                     <div class="form-group">
@@ -129,7 +186,7 @@
                                     <i class="fas fa-clock mr-1"></i>
                                     Timeframe
                                 </label>
-                                <input type="text" class="form-control" id="timeframe" name="timeframe" placeholder="e.g., 2-3 weeks">
+                                <input type="text" class="form-control" id="timeframe" name="timeframe" placeholder="e.g., 2-3 weeks, 6 months, 1 year">
                             </div>
                         </div>
                     </div>
@@ -190,6 +247,10 @@
                     <i class="fas fa-paper-plane mr-1"></i>
                     Send Email
                 </button>
+                <button type="button" class="btn btn-success" id="previewWhatsAppBtn">
+                    <i class="fab fa-whatsapp mr-1"></i>
+                    Preview WhatsApp
+                </button>
             </div>
         </div>
     </div>
@@ -247,6 +308,33 @@
         .form-group label i {
             color: #667eea;
         }
+        
+        /* Button Group Styles */
+        .btn-group .btn {
+            border-radius: 0;
+            margin-right: 0;
+        }
+        .btn-group .btn:first-child {
+            border-top-left-radius: 4px;
+            border-bottom-left-radius: 4px;
+        }
+        .btn-group .btn:last-child {
+            border-top-right-radius: 4px;
+            border-bottom-right-radius: 4px;
+        }
+        .btn-group .btn:not(:first-child) {
+            border-left: 1px solid rgba(255,255,255,0.2);
+        }
+        .btn-group .btn-sm {
+            padding: 0.25rem 0.5rem;
+            font-size: 0.875rem;
+        }
+        .btn-group {
+            box-shadow: 0 1px 3px rgba(0,0,0,0.1);
+        }
+        .btn-group:hover {
+            box-shadow: 0 2px 6px rgba(0,0,0,0.15);
+        }
     </style>
 @endsection
 
@@ -280,8 +368,10 @@
                     {data: 'client_name', name: 'client_name'},
                     {data: 'email', name: 'email'},
                     {data: 'updated_at', name: 'updated_at'},
+                    {data: 'last_email_sent_at', name: 'last_email_sent_at'},
+                    {data: 'last_whatsapp_sent_at', name: 'last_whatsapp_sent_at'},
                     {data: 'action', name: 'action', orderable: false, searchable: false},
-                    {data: 'send_email', name: 'send_email', orderable: false, searchable: false}
+                    {data: 'send_buttons', name: 'send_buttons', orderable: false, searchable: false}
                 ],
                 responsive: true,
                 language: {
@@ -307,6 +397,7 @@
                 // Clear all form fields explicitly
                 $('#client_name').val('');
                 $('#email').val('');
+                $('#phone').val('');
                 $('#email_template').val('');
                 $('#project_name').val('');
                 $('#estimated_cost').val('');
@@ -320,7 +411,7 @@
                 var clientName = $('#client_name').val() || 'Client Name';
                 var projectName = $('#project_name').val() || 'Your Project';
                 var estimatedCost = $('#estimated_cost').val() || '50000';
-                var timeframe = $('#timeframe').val() || '2-3 weeks';
+                var timeframe = $('#timeframe').val() || '1-2 months';
                 var notes = $('#notes').val() || '';
                 
                 if (!template) {
@@ -415,6 +506,7 @@
                     $('#email_id').val(data.id);
                     $('#client_name').val(data.client_name);
                     $('#email').val(data.email);
+                    $('#phone').val(data.phone);
                     $('#email_template').val(data.email_template);
                     $('#project_name').val(data.project_name);
                     $('#estimated_cost').val(data.estimated_cost);
@@ -430,6 +522,16 @@
             // Save Email (Add or Edit)
             $('#saveBtn').click(function (e) {
                 e.preventDefault();
+                
+                // Client-side validation: Either email or phone must be provided
+                var email = $('#email').val().trim();
+                var phone = $('#phone').val().trim();
+                
+                if (!email && !phone) {
+                    toastr.error('Please provide either an email address or WhatsApp number.');
+                    return;
+                }
+                
                 var saveBtn = $(this);
                 var originalText = saveBtn.html();
                 saveBtn.html('<i class="fas fa-spinner fa-spin"></i> Saving...');
@@ -505,6 +607,7 @@
                         data: { _token: $('meta[name="csrf-token"]').attr('content') },
                         success: function (data) {
                             toastr.success(data.success || data.message || 'Email sent successfully');
+                            table.draw(false); // Refresh table to show updated timestamp
                         },
                         error: function (xhr) {
                             let message = xhr.responseJSON && xhr.responseJSON.message ? xhr.responseJSON.message : 'An error occurred while sending email';
@@ -512,6 +615,66 @@
                         }
                     });
                 }
+            });
+
+            // Send WhatsApp
+            $('body').on('click', '.sendWhatsApp', function () {
+                var email_id = $(this).data('id');
+                var phone_number = $(this).data('phone');
+                
+                // First get the email record to generate WhatsApp message
+                $.get("/emails/" + email_id + '/edit', function (data) {
+                    var template = data.email_template || 'general_inquiry';
+                    var clientName = data.client_name || 'Valued Client';
+                    var projectName = data.project_name || 'Your Project';
+                    var estimatedCost = data.estimated_cost || '50000';
+                    var timeframe = data.timeframe || '1-2 months';
+                    var notes = data.notes || '';
+                    
+                    // Generate WhatsApp message
+                    $.ajax({
+                        url: '/emails/whatsapp-message',
+                        type: 'POST',
+                        data: {
+                            template: template,
+                            client_name: clientName,
+                            project_name: projectName,
+                            estimated_cost: estimatedCost,
+                            timeframe: timeframe,
+                            notes: notes,
+                            _token: $('meta[name="csrf-token"]').attr('content')
+                        },
+                        success: function(response) {
+                            var message = encodeURIComponent(response.message);
+                            var whatsappUrl = 'https://wa.me/' + phone_number.replace(/[^0-9]/g, '') + '?text=' + message;
+                            window.open(whatsappUrl, '_blank');
+                            
+                            // Update the WhatsApp sent timestamp
+                            $.ajax({
+                                url: '/emails/whatsapp/' + email_id,
+                                type: 'POST',
+                                data: {
+                                    _token: $('meta[name="csrf-token"]').attr('content')
+                                },
+                                success: function(updateResponse) {
+                                    toastr.success('WhatsApp message sent and logged!');
+                                    table.draw(false); // Refresh table to show updated timestamp
+                                },
+                                error: function(xhr) {
+                                    toastr.warning('WhatsApp opened but failed to log timestamp');
+                                }
+                            });
+                        },
+                        error: function(xhr) {
+                            var message = xhr.responseJSON && xhr.responseJSON.message ? xhr.responseJSON.message : 'Error generating WhatsApp message';
+                            toastr.error(message);
+                        }
+                    });
+                })
+                .fail(function(xhr) {
+                    let message = xhr.responseJSON && xhr.responseJSON.message ? xhr.responseJSON.message : 'Error loading email data';
+                    toastr.error(message);
+                });
             });
 
             // Filter functionality

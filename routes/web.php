@@ -18,8 +18,10 @@ Route::resource('incomes', App\Http\Controllers\IncomeController::class);
 Route::resource('expenses', App\Http\Controllers\ExpenseController::class);
 
 Route::post('emails/send/{id}', [App\Http\Controllers\EmailController::class, 'sendEmail'])->name('emails.send');
+Route::post('emails/whatsapp/{id}', [App\Http\Controllers\EmailController::class, 'sendWhatsAppMessage'])->name('emails.whatsapp');
 Route::post('emails/template-preview', [App\Http\Controllers\EmailController::class, 'templatePreview'])->name('emails.template-preview');
 Route::post('emails/send-template', [App\Http\Controllers\EmailController::class, 'sendTemplate'])->name('emails.send-template');
+Route::post('emails/whatsapp-message', [App\Http\Controllers\EmailController::class, 'generateWhatsAppMessage'])->name('emails.whatsapp-message');
 Route::resource('emails', App\Http\Controllers\EmailController::class);
 
 Route::post('/send-website-development-update-email', [App\Http\Controllers\EmailController::class, 'sendWebsiteDevelopmentUpdateEmail']);
