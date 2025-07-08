@@ -15,6 +15,7 @@ class PendingTask extends Model
         'task_name',
         'client_name',
         'description',
+        'whatsapp_message',
         'due_date',
         'status',
         'payment',

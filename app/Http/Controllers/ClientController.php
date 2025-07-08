@@ -40,9 +40,11 @@ class ClientController extends Controller
 
             // Apply search filter
             if (!empty($search_value)) {
-                $query->where('name', 'like', '%' . $search_value . '%')
+                $query->where(function($q) use ($search_value) {
+                    $q->where('name', 'like', '%' . $search_value . '%')
                       ->orWhere('email', 'like', '%' . $search_value . '%')
                       ->orWhere('phone', 'like', '%' . $search_value . '%');
+                });
             }
 
             // Default ordering by created_at in descending order

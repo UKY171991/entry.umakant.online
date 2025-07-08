@@ -14,7 +14,7 @@ class ExpenseController extends Controller
     public function index(Request $request)
     {
         if ($request->ajax()) {
-            $data = Expense::orderBy('created_at', 'desc');
+            $data = Expense::orderBy('date', 'desc');
 
             // Apply filters
             if ($request->has('month') && $request->month) {
