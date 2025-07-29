@@ -77,6 +77,9 @@ class PendingTaskController extends Controller
                     'payment' => '<span class="currency-amount currency-positive"><i class="fas fa-rupee-sign rupee-icon"></i>' . number_format($task->payment, 2) . '</span>',
                     'payment_status' => $paymentBadge,
                     'action' => '<div class="btn-group" role="group">
+                        <button type="button" class="btn btn-primary btn-sm viewTask" data-id="'.$task->id.'" title="View Task">
+                            <i class="fas fa-eye"></i>
+                        </button>
                         <button type="button" class="btn btn-info btn-sm editTask" data-id="'.$task->id.'" title="Edit Task">
                             <i class="fas fa-edit"></i>
                         </button>
@@ -147,7 +150,7 @@ class PendingTaskController extends Controller
 
     public function show(string $id)
     {
-        $task = PendingTask::find($id);
+        $task = PendingTask::with('client')->find($id);
         if (!$task) {
             return response()->json(['error' => 'Task not found'], 404);
         }
@@ -207,7 +210,7 @@ class PendingTaskController extends Controller
 
     public function edit(string $id)
     {
-        $task = PendingTask::find($id);
+        $task = PendingTask::with('client')->find($id);
         if (!$task) {
             return response()->json(['error' => 'Task not found'], 404);
         }

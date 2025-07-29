@@ -15,6 +15,9 @@
                     Website Status List
                 </h3>
                 <div class="card-tools">
+                    <button class="btn btn-info btn-sm" id="checkAllWebsites" title="Check All Websites Status">
+                        <i class="fas fa-sync-alt"></i> Check All Status
+                    </button>
                     <button class="btn btn-success btn-sm" id="createNewWebsite">
                         <i class="fas fa-plus"></i> Add Website
                     </button>
@@ -187,6 +190,56 @@
                 language: {
                     processing: '<i class="fas fa-spinner fa-spin"></i> Loading...'
                 }
+            });
+
+            // Auto-check all websites status on page load
+            function checkAllWebsitesStatus() {
+                // Show loading indicator
+                toastr.info('Checking all websites status...', 'Status Check', {
+                    timeOut: 0,
+                    extendedTimeOut: 0,
+                    closeButton: true,
+                    progressBar: true
+                });
+                
+                // Add loading overlay to the table
+                $('#websitesTable').addClass('table-loading');
+                
+                $.ajax({
+                    url: '/websites/check-all',
+                    type: 'POST',
+                    headers: {
+                        'X-CSRF-TOKEN': $('meta[name="csrf-token"]').attr('content')
+                    },
+                    success: function(response) {
+                        // Clear the loading toast
+                        toastr.clear();
+                        
+                        // Show success message
+                        toastr.success('Checked ' + response.total_checked + ' websites', 'Status Check Complete');
+                        
+                        // Refresh the table to show updated statuses
+                        table.ajax.reload(null, false);
+                        
+                        // Remove loading overlay
+                        $('#websitesTable').removeClass('table-loading');
+                    },
+                    error: function(xhr) {
+                        // Clear the loading toast
+                        toastr.clear();
+                        
+                        let message = xhr.responseJSON && xhr.responseJSON.message ? xhr.responseJSON.message : 'Error checking websites status';
+                        toastr.error(message, 'Status Check Failed');
+                        
+                        // Remove loading overlay
+                        $('#websitesTable').removeClass('table-loading');
+                    }
+                });
+            }
+            
+            // Manual status check button
+            $('#checkAllWebsites').click(function() {
+                checkAllWebsitesStatus();
             });
 
             // Create New Website

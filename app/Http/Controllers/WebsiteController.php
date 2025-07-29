@@ -195,6 +195,46 @@ class WebsiteController extends Controller
         return response()->json(['success' => 'Website deleted successfully!']);
     }
 
+    public function checkAllWebsites()
+    {
+        $websites = Website::all();
+        $results = [];
+        
+        foreach ($websites as $website) {
+            try {
+                // Test website using HTTP client with timeout
+                $response = \Illuminate\Support\Facades\Http::timeout(10)->get($website->website_url);
+                
+                if ($response->successful()) {
+                    $website->status = 'UP';
+                    $status = 'UP';
+                } else {
+                    $website->status = 'DOWN';
+                    $status = 'DOWN';
+                }
+            } catch (\Exception $e) {
+                $website->status = 'DOWN';
+                $status = 'DOWN';
+            }
+            
+            $website->last_updated = now();
+            $website->save();
+            
+            $results[] = [
+                'id' => $website->id,
+                'url' => $website->website_url,
+                'status' => $status,
+                'client_name' => $website->client ? $website->client->name : 'N/A'
+            ];
+        }
+        
+        return response()->json([
+            'success' => 'All websites checked successfully',
+            'results' => $results,
+            'total_checked' => count($results)
+        ]);
+    }
+
     public function test(string $id)
     {
         $website = Website::find($id);

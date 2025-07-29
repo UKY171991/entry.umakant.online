@@ -26,15 +26,14 @@ class EmailController extends Controller
                 $search_value = $search['value'];
             }
 
-            $query = Email::with('client');
+            $query = Email::query(); // Remove the with('client') since we're using client_name directly
 
             // Apply search filter
             if (!empty($search_value)) {
                 $query->where(function($q) use ($search_value) {
                     $q->where('email', 'like', '%' . $search_value . '%')
-                      ->orWhereHas('client', function($q) use ($search_value) {
-                          $q->where('name', 'like', '%' . $search_value . '%');
-                      });
+                      ->orWhere('client_name', 'like', '%' . $search_value . '%') // Search in client_name field directly
+                      ->orWhere('project_name', 'like', '%' . $search_value . '%');
                 });
             }
 
@@ -49,6 +48,9 @@ class EmailController extends Controller
                 // Create grouped action buttons
                 $actionButtons = '
                     <div class="btn-group" role="group" aria-label="Actions">
+                        <button type="button" class="btn btn-primary btn-sm viewEmail" data-id="'.$email->id.'" title="View">
+                            <i class="fas fa-eye"></i>
+                        </button>
                         <button type="button" class="btn btn-info btn-sm editEmail" data-id="'.$email->id.'" title="Edit">
                             <i class="fas fa-edit"></i>
                         </button>
@@ -79,12 +81,13 @@ class EmailController extends Controller
                 $sendButtons .= '</div>';
 
                 $data[] = [
-                    'id' => $email->id,
-                    'client_name' => $email->client ? $email->client->name : 'N/A',
+                    'sr_no' => $email->id,
+                    'client_name' => $email->client_name ?: 'N/A', // Use stored client_name directly
                     'email' => $email->email,
-                    'updated_at' => $email->updated_at->format('Y-m-d H:i:s'),
-                    'last_email_sent_at' => $email->last_email_sent_at ? $email->last_email_sent_at->format('Y-m-d H:i:s') : 'Never',
-                    'last_whatsapp_sent_at' => $email->last_whatsapp_sent_at ? $email->last_whatsapp_sent_at->format('Y-m-d H:i:s') : 'Never',
+                    'phone' => $email->phone ?: 'N/A',
+                    'project_name' => $email->project_name ?: 'N/A',
+                    'template' => $email->email_template ? ucwords(str_replace('_', ' ', $email->email_template)) : 'N/A',
+                    'last_contact' => $email->last_email_sent_at ? $email->last_email_sent_at->format('Y-m-d') : ($email->last_whatsapp_sent_at ? $email->last_whatsapp_sent_at->format('Y-m-d') : 'Never'),
                     'action' => $actionButtons,
                     'send_buttons' => $sendButtons
                 ];
@@ -111,13 +114,16 @@ class EmailController extends Controller
     public function store(EmailRequest $request)
     {
         // Validation is automatically handled by EmailRequest
-        $client = Client::firstOrCreate(['name' => $request->client_name]);
-        $clientId = $client->id;
+        
+        // Check if client already exists, but don't create new one
+        $client = Client::where('name', $request->client_name)->first();
+        $clientId = $client ? $client->id : null;
 
         $email = Email::updateOrCreate(
             ['id' => $request->email_id],
             [
                 'client_id' => $clientId,
+                'client_name' => $request->client_name, // Store client name directly
                 'email' => $request->email,
                 'phone' => $request->phone,
                 'email_template' => $request->email_template,
@@ -142,14 +148,14 @@ class EmailController extends Controller
 
     public function edit(string $id)
     {
-        $email = Email::with('client')->find($id);
+        $email = Email::find($id); // Remove with('client') since we're using client_name directly
         if (!$email) {
             return response()->json(['error' => 'Email not found'], 404);
         }
         return response()->json([
             'id' => $email->id,
             'client_id' => $email->client_id,
-            'client_name' => $email->client ? $email->client->name : null,
+            'client_name' => $email->client_name, // Use stored client_name directly
             'email' => $email->email,
             'phone' => $email->phone,
             'email_template' => $email->email_template,
@@ -167,11 +173,13 @@ class EmailController extends Controller
             return response()->json(['error' => 'Email not found'], 404);
         }
 
-        $client = Client::firstOrCreate(['name' => $request->client_name]);
-        $clientId = $client->id;
+        // Check if client already exists, but don't create new one
+        $client = Client::where('name', $request->client_name)->first();
+        $clientId = $client ? $client->id : null;
 
         $email->update([
             'client_id' => $clientId,
+            'client_name' => $request->client_name, // Store client name directly
             'email' => $request->email,
             'phone' => $request->phone,
             'email_template' => $request->email_template,
@@ -212,36 +220,57 @@ class EmailController extends Controller
                 $template = 'general_inquiry';
             }
             
-            // Prepare email data
-            $emailData = [
-                'clientName' => $clientName,
-                'email' => $to,
-                'projectName' => $email->project_name,
-                'estimatedCost' => $email->estimated_cost,
-                'timeframe' => $email->timeframe,
-                'notes' => $email->notes,
-                'progressPercentage' => 75, // Default progress for status updates
-                'projectDetails' => $email->notes ?: 'Project details will be provided soon.',
-                'nextMilestone' => 'Next milestone information will be updated.',
-                'websiteUrl' => 'https://example.com', // Default website URL
-                'launchDate' => now()->format('Y-m-d'),
-                'maintenanceInfo' => 'Our team will provide ongoing support and maintenance.'
-            ];
+            // Use individual parameters for consistency with sendTemplate method
             
             // Send email based on template
             switch ($template) {
                 case 'website_proposal':
-                    Mail::to($to)->send(new \App\Mail\WebsiteProposal($emailData));
+                    Mail::to($to)->send(new \App\Mail\WebsiteProposal($clientName, $email->project_name, $email->estimated_cost, $email->timeframe, $email->notes));
                     break;
+                    
                 case 'project_update':
-                    Mail::to($to)->send(new \App\Mail\ProjectStatusUpdate($emailData));
+                    $progressPercentage = 65;
+                    $completedTasks = [
+                        'Design mockups approved',
+                        'Homepage development completed',
+                        'Contact form implemented',
+                        'SEO optimization started'
+                    ];
+                    $upcomingTasks = [
+                        'Product pages development',
+                        'Payment gateway integration',
+                        'Mobile responsiveness testing',
+                        'Final review and testing'
+                    ];
+                    Mail::to($to)->send(new \App\Mail\ProjectStatusUpdate($clientName, $email->project_name, $progressPercentage, $completedTasks, $upcomingTasks, $email->notes));
                     break;
+                    
                 case 'project_completion':
-                    Mail::to($to)->send(new \App\Mail\ProjectCompletion($emailData));
+                    $websiteUrl = 'https://www.yourclientwebsite.com';
+                    $loginCredentials = [
+                        'admin_url' => 'https://www.yourclientwebsite.com/admin',
+                        'username' => 'admin',
+                        'password' => 'SecurePassword123'
+                    ];
+                    $supportDetails = '3 months of free support included with regular updates and maintenance.';
+                    Mail::to($to)->send(new \App\Mail\ProjectCompletion($clientName, $email->project_name, $websiteUrl, $loginCredentials, $supportDetails));
                     break;
+                    
                 case 'general_inquiry':
+                case 'follow_up':
+                    Mail::to($to)->send(new \App\Mail\GeneralInquiry($clientName));
+                    break;
+                    
+                case 'pathology_management':
+                    Mail::to($to)->send(new \App\Mail\PathologyManagement($clientName, $email->project_name, $email->estimated_cost, $email->timeframe, $email->notes));
+                    break;
+                    
+                case 'hospital_management':
+                    Mail::to($to)->send(new \App\Mail\HospitalManagement($clientName, $email->project_name, $email->estimated_cost, $email->timeframe, $email->notes));
+                    break;
+                    
                 default:
-                    Mail::to($to)->send(new \App\Mail\GeneralInquiry($emailData));
+                    Mail::to($to)->send(new \App\Mail\GeneralInquiry($clientName));
                     break;
             }
             

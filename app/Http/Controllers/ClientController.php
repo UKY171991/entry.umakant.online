@@ -73,6 +73,9 @@ class ClientController extends Controller
                     'phone' => $client->phone,
                     'address' => $client->address ?? 'N/A',
                     'action' => '<div class="btn-group" role="group">
+                        <button type="button" class="btn btn-primary btn-sm viewClient" data-id="'.$client->id.'" title="View Client">
+                            <i class="fas fa-eye"></i>
+                        </button>
                         <button type="button" class="btn btn-info btn-sm editClient" data-id="'.$client->id.'" title="Edit Client">
                             <i class="fas fa-edit"></i>
                         </button>
@@ -137,7 +140,11 @@ class ClientController extends Controller
      */
     public function show(string $id)
     {
-        //
+        $client = Client::find($id);
+        if (!$client) {
+            return response()->json(['error' => 'Client not found'], 404);
+        }
+        return response()->json($client);
     }
 
     /**

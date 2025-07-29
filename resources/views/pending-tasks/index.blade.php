@@ -67,7 +67,88 @@
 @endsection
 
 @section('modals')
-<!-- Modal -->
+<!-- View Modal -->
+<div class="modal fade" id="viewModal" tabindex="-1" aria-hidden="true">
+    <div class="modal-dialog modal-lg">
+        <div class="modal-content">
+            <div class="modal-header">
+                <h4 class="modal-title">
+                    <i class="fas fa-eye mr-2"></i>
+                    View Task Details
+                </h4>
+                <button type="button" class="close" data-dismiss="modal" aria-label="Close">
+                    <span aria-hidden="true">&times;</span>
+                </button>
+            </div>
+            <div class="modal-body">
+                <div class="row">
+                    <div class="col-md-6">
+                        <div class="form-group">
+                            <label><i class="fas fa-clipboard-list mr-1"></i> Task Name:</label>
+                            <p id="view_task_name" class="form-control-plaintext border p-2 bg-light"></p>
+                        </div>
+                    </div>
+                    <div class="col-md-6">
+                        <div class="form-group">
+                            <label><i class="fas fa-user mr-1"></i> Client:</label>
+                            <p id="view_client_name" class="form-control-plaintext border p-2 bg-light"></p>
+                        </div>
+                    </div>
+                </div>
+                
+                <div class="form-group">
+                    <label><i class="fas fa-align-left mr-1"></i> Description:</label>
+                    <p id="view_description" class="form-control-plaintext border p-2 bg-light" style="min-height: 80px;"></p>
+                </div>
+
+                <div class="row">
+                    <div class="col-md-6">
+                        <div class="form-group">
+                            <label><i class="fas fa-calendar mr-1"></i> Due Date:</label>
+                            <p id="view_due_date" class="form-control-plaintext border p-2 bg-light"></p>
+                        </div>
+                    </div>
+                    <div class="col-md-6">
+                        <div class="form-group">
+                            <label><i class="fas fa-flag mr-1"></i> Status:</label>
+                            <p id="view_status" class="form-control-plaintext border p-2 bg-light"></p>
+                        </div>
+                    </div>
+                </div>
+
+                <div class="row">
+                    <div class="col-md-6">
+                        <div class="form-group">
+                            <label><i class="fas fa-rupee-sign mr-1"></i> Payment Amount:</label>
+                            <p id="view_payment" class="form-control-plaintext border p-2 bg-light"></p>
+                        </div>
+                    </div>
+                    <div class="col-md-6">
+                        <div class="form-group">
+                            <label><i class="fas fa-credit-card mr-1"></i> Payment Status:</label>
+                            <p id="view_payment_status" class="form-control-plaintext border p-2 bg-light"></p>
+                        </div>
+                    </div>
+                </div>
+
+                <div class="form-group">
+                    <label><i class="fas fa-image mr-1"></i> Task Image:</label>
+                    <div id="view_image_container" class="border p-2 bg-light">
+                        <img id="view_image" src="" alt="Task Image" style="max-width: 100%; height: auto; display: none;">
+                        <p id="view_no_image" class="text-muted mb-0" style="display: none;">No image available</p>
+                    </div>
+                </div>
+            </div>
+            <div class="modal-footer">
+                <button type="button" class="btn btn-secondary" data-dismiss="modal">
+                    <i class="fas fa-times mr-1"></i> Close
+                </button>
+            </div>
+        </div>
+    </div>
+</div>
+
+<!-- Edit/Add Modal -->
 <div class="modal fade" id="ajaxModel" tabindex="-1" aria-hidden="true">
     <div class="modal-dialog modal-lg">
         <div class="modal-content">
@@ -255,6 +336,59 @@
                 $('#modelHeading').html('<i class="fas fa-tasks mr-2"></i> Create New Task');
                 $('#ajaxModel').modal('show');
                 $('#current_image_container').hide();
+            });
+
+            // View Task
+            $('body').on('click', '.viewTask', function () {
+                var task_id = $(this).data('id');
+                $.get("/pending-tasks/" + task_id, function (data) {
+                    console.log('Data received for view:', data);
+                    $('#view_task_name').text(data.task_name);
+                    $('#view_client_name').text(data.client ? data.client.name : 'N/A');
+                    $('#view_description').text(data.description);
+                    $('#view_due_date').text(data.due_date);
+                    
+                    // Format status with badge
+                    var statusBadge = '';
+                    switch(data.status) {
+                        case 'Completed':
+                            statusBadge = '<span class="badge bg-success">Completed</span>';
+                            break;
+                        case 'Pending':
+                            statusBadge = '<span class="badge bg-warning">Pending</span>';
+                            break;
+                        case 'In Progress':
+                            statusBadge = '<span class="badge bg-info">In Progress</span>';
+                            break;
+                        default:
+                            statusBadge = '<span class="badge bg-secondary">' + data.status + '</span>';
+                    }
+                    $('#view_status').html(statusBadge);
+                    
+                    // Format payment
+                    $('#view_payment').html('<i class="fas fa-rupee-sign"></i> ' + parseFloat(data.payment || 0).toFixed(2));
+                    
+                    // Format payment status with badge
+                    var paymentBadge = data.payment_status == 'Paid' ? 
+                        '<span class="badge bg-success">Paid</span>' : 
+                        '<span class="badge bg-danger">Unpaid</span>';
+                    $('#view_payment_status').html(paymentBadge);
+                    
+                    // Handle image
+                    if (data.image_path) {
+                        $('#view_image').attr('src', '/storage/' + data.image_path).show();
+                        $('#view_no_image').hide();
+                    } else {
+                        $('#view_image').hide();
+                        $('#view_no_image').show();
+                    }
+                    
+                    $('#viewModal').modal('show');
+                })
+                .fail(function(xhr) {
+                    let message = xhr.responseJSON && xhr.responseJSON.message ? xhr.responseJSON.message : 'Error loading task data';
+                    toastr.error(message);
+                });
             });
 
             // Edit Task

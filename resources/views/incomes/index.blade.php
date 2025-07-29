@@ -56,6 +56,27 @@
             </thead>
             <tbody>
             </tbody>
+            <tfoot>
+                <tr class="table-totals">
+                    <th colspan="2" style="text-align:right; font-weight: bold;">Totals:</th>
+                    <th id="total-amount-footer" style="font-weight: bold;">
+                        <span class="currency-amount currency-positive">
+                            <i class="fas fa-rupee-sign rupee-icon"></i>0.00
+                        </span>
+                    </th>
+                    <th id="total-pending-footer" style="font-weight: bold;">
+                        <span class="currency-amount currency-warning">
+                            <i class="fas fa-rupee-sign rupee-icon"></i>0.00
+                        </span>
+                    </th>
+                    <th id="total-received-footer" style="font-weight: bold;">
+                        <span class="currency-amount currency-info">
+                            <i class="fas fa-rupee-sign rupee-icon"></i>0.00
+                        </span>
+                    </th>
+                    <th colspan="2"></th>
+                </tr>
+            </tfoot>
         </table>
     </div>
 </div>
@@ -187,6 +208,38 @@
             text-align: center;
             white-space: nowrap;
         }
+        
+        /* Totals row styling */
+        .table-totals {
+            background-color: #f8f9fa;
+            border-top: 2px solid #dee2e6;
+        }
+        
+        .table-totals th {
+            border-top: 2px solid #dee2e6;
+            font-size: 1.1em;
+        }
+        
+        /* Currency amount styling */
+        .currency-amount {
+            font-weight: bold;
+        }
+        
+        .currency-positive {
+            color: #28a745;
+        }
+        
+        .currency-warning {
+            color: #ffc107;
+        }
+        
+        .currency-info {
+            color: #17a2b8;
+        }
+        
+        .rupee-icon {
+            margin-right: 2px;
+        }
     </style>
 @endsection
 
@@ -211,6 +264,15 @@
                         d.date_from = $('#dateFromFilter').val();
                         d.date_to = $('#dateToFilter').val();
                         d.status = $('#statusFilter').val();
+                    },
+                    dataSrc: function(json) {
+                        // Update totals in footer when data is loaded
+                        if (json.totals) {
+                            $('#total-amount-footer').html(json.totals.total_amount);
+                            $('#total-pending-footer').html(json.totals.total_pending);
+                            $('#total-received-footer').html(json.totals.total_received);
+                        }
+                        return json.data;
                     }
                 },
                 columns: [

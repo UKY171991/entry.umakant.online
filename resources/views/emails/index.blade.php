@@ -34,11 +34,12 @@
                     <th>#</th>
                     <th>CLIENT NAME</th>
                     <th>EMAIL</th>
-                    <th>UPDATED AT</th>
-                    <th>LAST EMAIL SENT</th>
-                    <th>LAST WHATSAPP SENT</th>
-                    <th>Actions</th>
-                    <th>Send Messages</th>
+                    <th>PHONE</th>
+                    <th>PROJECT</th>
+                    <th>TEMPLATE</th>
+                    <th>LAST CONTACT</th>
+                    <th>ACTIONS</th>
+                    <th>SEND</th>
                 </tr>
             </thead>
             <tbody>
@@ -49,6 +50,84 @@
 @endsection
 
 @section('modals')
+<!-- View Email Modal -->
+<div class="modal fade" id="viewEmailModal" tabindex="-1" aria-hidden="true">
+    <div class="modal-dialog modal-lg">
+        <div class="modal-content">
+            <div class="modal-header">
+                <h4 class="modal-title">
+                    <i class="fas fa-eye mr-2"></i>
+                    View Email Details
+                </h4>
+                <button type="button" class="close" data-dismiss="modal" aria-label="Close">
+                    <span aria-hidden="true">&times;</span>
+                </button>
+            </div>
+            <div class="modal-body">
+                <div class="row">
+                    <div class="col-md-6">
+                        <div class="form-group">
+                            <label><i class="fas fa-user mr-1"></i> Client Name:</label>
+                            <p id="view_email_client_name" class="form-control-plaintext border p-2 bg-light"></p>
+                        </div>
+                    </div>
+                    <div class="col-md-6">
+                        <div class="form-group">
+                            <label><i class="fas fa-envelope mr-1"></i> Email:</label>
+                            <p id="view_email_address" class="form-control-plaintext border p-2 bg-light"></p>
+                        </div>
+                    </div>
+                </div>
+                
+                <div class="row">
+                    <div class="col-md-6">
+                        <div class="form-group">
+                            <label><i class="fas fa-phone mr-1"></i> WhatsApp:</label>
+                            <p id="view_email_phone" class="form-control-plaintext border p-2 bg-light"></p>
+                        </div>
+                    </div>
+                    <div class="col-md-6">
+                        <div class="form-group">
+                            <label><i class="fas fa-file-alt mr-1"></i> Template:</label>
+                            <p id="view_email_template" class="form-control-plaintext border p-2 bg-light"></p>
+                        </div>
+                    </div>
+                </div>
+
+                <div class="form-group">
+                    <label><i class="fas fa-project-diagram mr-1"></i> Project Name:</label>
+                    <p id="view_email_project" class="form-control-plaintext border p-2 bg-light"></p>
+                </div>
+
+                <div class="row">
+                    <div class="col-md-6">
+                        <div class="form-group">
+                            <label><i class="fas fa-rupee-sign mr-1"></i> Estimated Cost:</label>
+                            <p id="view_email_cost" class="form-control-plaintext border p-2 bg-light"></p>
+                        </div>
+                    </div>
+                    <div class="col-md-6">
+                        <div class="form-group">
+                            <label><i class="fas fa-clock mr-1"></i> Timeframe:</label>
+                            <p id="view_email_timeframe" class="form-control-plaintext border p-2 bg-light"></p>
+                        </div>
+                    </div>
+                </div>
+
+                <div class="form-group">
+                    <label><i class="fas fa-sticky-note mr-1"></i> Notes:</label>
+                    <p id="view_email_notes" class="form-control-plaintext border p-2 bg-light" style="min-height: 80px;"></p>
+                </div>
+            </div>
+            <div class="modal-footer">
+                <button type="button" class="btn btn-secondary" data-dismiss="modal">
+                    <i class="fas fa-times mr-1"></i> Close
+                </button>
+            </div>
+        </div>
+    </div>
+</div>
+
 <!-- Add/Edit Email Modal -->
 <div class="modal fade" id="ajaxModel" tabindex="-1" role="dialog" aria-labelledby="modelHeading" aria-hidden="true">
     <div class="modal-dialog modal-lg" role="document">
@@ -324,12 +403,13 @@
                     }
                 },
                 columns: [
-                    {data: 'id', name: 'id'},
+                    {data: 'sr_no', name: 'sr_no', orderable: false, searchable: false},
                     {data: 'client_name', name: 'client_name'},
                     {data: 'email', name: 'email'},
-                    {data: 'updated_at', name: 'updated_at'},
-                    {data: 'last_email_sent_at', name: 'last_email_sent_at'},
-                    {data: 'last_whatsapp_sent_at', name: 'last_whatsapp_sent_at'},
+                    {data: 'phone', name: 'phone'},
+                    {data: 'project_name', name: 'project_name'},
+                    {data: 'template', name: 'template'},
+                    {data: 'last_contact', name: 'last_contact'},
                     {data: 'action', name: 'action', orderable: false, searchable: false},
                     {data: 'send_buttons', name: 'send_buttons', orderable: false, searchable: false}
                 ],
@@ -454,6 +534,27 @@
                         }
                     });
                 }
+            });
+
+            // View Email
+            $('body').on('click', '.viewEmail', function () {
+                var email_id = $(this).data('id');
+                $.get("/emails/" + email_id, function (data) {
+                    console.log('Data received for view:', data);
+                    $('#view_email_client_name').text(data.client_name || 'N/A');
+                    $('#view_email_address').text(data.email || 'N/A');
+                    $('#view_email_phone').text(data.phone || 'N/A');
+                    $('#view_email_template').text(data.email_template ? data.email_template.replace(/_/g, ' ').replace(/\b\w/g, l => l.toUpperCase()) : 'N/A');
+                    $('#view_email_project').text(data.project_name || 'N/A');
+                    $('#view_email_cost').text(data.estimated_cost ? '₹' + parseFloat(data.estimated_cost).toLocaleString() : 'N/A');
+                    $('#view_email_timeframe').text(data.timeframe || 'N/A');
+                    $('#view_email_notes').text(data.notes || 'No notes provided');
+                    $('#viewEmailModal').modal('show');
+                })
+                .fail(function(xhr) {
+                    let message = xhr.responseJSON && xhr.responseJSON.message ? xhr.responseJSON.message : 'Error loading email data';
+                    toastr.error(message);
+                });
             });
 
             // Edit Email

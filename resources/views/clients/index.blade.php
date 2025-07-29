@@ -48,6 +48,64 @@
 @endsection
 
 @section('modals')
+<!-- View Client Modal -->
+<div class="modal fade" id="viewModal" tabindex="-1" aria-hidden="true">
+    <div class="modal-dialog modal-lg">
+        <div class="modal-content">
+            <div class="modal-header">
+                <h4 class="modal-title">
+                    <i class="fas fa-eye mr-2"></i>
+                    View Client Details
+                </h4>
+                <button type="button" class="close" data-dismiss="modal" aria-label="Close">
+                    <span aria-hidden="true">&times;</span>
+                </button>
+            </div>
+            <div class="modal-body">
+                <div class="row">
+                    <div class="col-md-6">
+                        <div class="form-group">
+                            <label><i class="fas fa-user mr-1"></i> Client Name:</label>
+                            <p id="view_client_name" class="form-control-plaintext border p-2 bg-light"></p>
+                        </div>
+                    </div>
+                    <div class="col-md-6">
+                        <div class="form-group">
+                            <label><i class="fas fa-envelope mr-1"></i> Email:</label>
+                            <p id="view_client_email" class="form-control-plaintext border p-2 bg-light"></p>
+                        </div>
+                    </div>
+                </div>
+                
+                <div class="row">
+                    <div class="col-md-6">
+                        <div class="form-group">
+                            <label><i class="fas fa-phone mr-1"></i> Phone:</label>
+                            <p id="view_client_phone" class="form-control-plaintext border p-2 bg-light"></p>
+                        </div>
+                    </div>
+                    <div class="col-md-6">
+                        <div class="form-group">
+                            <label><i class="fas fa-calendar mr-1"></i> Created:</label>
+                            <p id="view_client_created" class="form-control-plaintext border p-2 bg-light"></p>
+                        </div>
+                    </div>
+                </div>
+
+                <div class="form-group">
+                    <label><i class="fas fa-map-marker-alt mr-1"></i> Address:</label>
+                    <p id="view_client_address" class="form-control-plaintext border p-2 bg-light" style="min-height: 60px;"></p>
+                </div>
+            </div>
+            <div class="modal-footer">
+                <button type="button" class="btn btn-secondary" data-dismiss="modal">
+                    <i class="fas fa-times mr-1"></i> Close
+                </button>
+            </div>
+        </div>
+    </div>
+</div>
+
 <!-- Add/Edit Client Modal -->
 <div class="modal fade" id="ajaxModel" tabindex="-1" role="dialog" aria-labelledby="modelHeading" aria-hidden="true">
     <div class="modal-dialog" role="document">
@@ -186,6 +244,24 @@
             // NOTE: Your server-side should return the following HTML for the action column:
             // <button class="btn btn-info editClient" data-id="CLIENT_ID">Edit</button>
             // <button class="btn btn-danger deleteClient" data-id="CLIENT_ID">Delete</button>
+
+            // View Client
+            $('body').on('click', '.viewClient', function () {
+                var client_id = $(this).data('id');
+                $.get("/clients/" + client_id, function (data) {
+                    console.log('Data received for view:', data);
+                    $('#view_client_name').text(data.name);
+                    $('#view_client_email').text(data.email);
+                    $('#view_client_phone').text(data.phone || 'N/A');
+                    $('#view_client_address').text(data.address || 'No address provided');
+                    $('#view_client_created').text(new Date(data.created_at).toLocaleDateString());
+                    $('#viewModal').modal('show');
+                })
+                .fail(function(xhr) {
+                    let message = xhr.responseJSON && xhr.responseJSON.message ? xhr.responseJSON.message : 'Error loading client data';
+                    toastr.error(message);
+                });
+            });
 
             // Create New Client
             $('#createNewClient').click(function () {

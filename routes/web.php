@@ -4,10 +4,13 @@ use App\Http\Controllers\ProfileController;
 use Illuminate\Support\Facades\Route;
 
 Route::get('/', function () {
+    if (auth()->check()) {
+        return redirect('/dashboard');
+    }
     return view('welcome');
 });
 
-Route::view('/dashboard', 'dashboard')
+Route::get('/dashboard', [App\Http\Controllers\DashboardController::class, 'index'])
     ->middleware(['auth', 'verified'])
     ->name('dashboard');
 
@@ -42,6 +45,7 @@ Route::get('/test-email', function () {
 
 Route::resource('websites', App\Http\Controllers\WebsiteController::class);
 Route::post('websites/{id}/test', [App\Http\Controllers\WebsiteController::class, 'testWebsite'])->name('websites.test');
+Route::post('websites/check-all', [App\Http\Controllers\WebsiteController::class, 'checkAllWebsites'])->name('websites.check-all');
 Route::resource('pending-tasks', App\Http\Controllers\PendingTaskController::class);
 
 Route::middleware('auth')->group(function () {
