@@ -51,7 +51,16 @@ class IncomeController extends Controller
                 });
             }
 
-            // Apply custom filters
+            // Apply date range filter
+            if ($request->has('date_from') && $request->date_from) {
+                $query->where('date', '>=', $request->date_from);
+            }
+            
+            if ($request->has('date_to') && $request->date_to) {
+                $query->where('date', '<=', $request->date_to);
+            }
+            
+            // Keep the month and year filters for backward compatibility
             if ($request->has('month') && $request->month) {
                 // Use SQLite compatible date formatting
                 $query->whereRaw('strftime("%Y-%m", date) = ?', [$request->month]);

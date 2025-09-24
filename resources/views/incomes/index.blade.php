@@ -249,21 +249,49 @@
     <script src="https://cdn.datatables.net/1.10.21/js/jquery.dataTables.min.js"></script>
     <script src="https://cdn.datatables.net/1.10.21/js/dataTables.bootstrap4.min.js"></script>
     <script>
+        // Function to get first and last day of current month
+        function getCurrentMonthRange() {
+            const now = new Date();
+            const firstDay = new Date(now.getFullYear(), now.getMonth(), 1);
+            const lastDay = new Date(now.getFullYear(), now.getMonth() + 1, 0);
+            
+            // Format as YYYY-MM-DD for date inputs
+            const format = date => date.toISOString().split('T')[0];
+            
+            return {
+                from: format(firstDay),
+                to: format(lastDay)
+            };
+        }
+
         $(function () {
+            // Set default date range to current month
+            const currentMonth = getCurrentMonthRange();
+            $('#dateFromFilter').val(currentMonth.from);
+            $('#dateToFilter').val(currentMonth.to);
+
             // Initialize DataTable
             var table = $('.data-table').DataTable({
                 processing: true,
                 serverSide: true,
                 ajax: {
                     url: "/incomes",
+                    type: 'GET',
                     headers: {
                         'X-Requested-With': 'XMLHttpRequest'
                     },
                     data: function(d) {
-                        d.client_id = $('#clientFilter').val();
-                        d.date_from = $('#dateFromFilter').val();
-                        d.date_to = $('#dateToFilter').val();
-                        d.status = $('#statusFilter').val();
+                        return {
+                            client_id: $('#clientFilter').val(),
+                            date_from: $('#dateFromFilter').val() || currentMonth.from,
+                            date_to: $('#dateToFilter').val() || currentMonth.to,
+                            status: $('#statusFilter').val(),
+                            draw: d.draw,
+                            start: d.start,
+                            length: d.length,
+                            search: d.search,
+                            order: d.order
+                        };
                     },
                     dataSrc: function(json) {
                         // Update totals in footer when data is loaded
@@ -407,8 +435,15 @@
 
             // Filter functionality
             $('#filterBtn').click(function() {
-                table.draw();
+                table.ajax.reload();
                 toastr.info('Filter applied');
+            });
+            
+            // Handle Enter key in filter inputs
+            $('#clientFilter, #dateFromFilter, #dateToFilter, #statusFilter').keypress(function(e) {
+                if (e.which === 13) { // Enter key
+                    table.ajax.reload();
+                }
             });
 
             // Auto calculate amounts
