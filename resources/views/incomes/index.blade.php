@@ -8,22 +8,46 @@
 <div class="filter-section">
     <div class="row">
         <div class="col-md-3">
-            <select class="form-control" id="clientFilter">
-                <option value="">All Clients</option>
+            <select class="form-control filter-select" id="clientFilter" data-placeholder="Select Client">
+                <option value=""></option>
                 @foreach($clients as $client)
                     <option value="{{ $client->id }}">{{ $client->name }}</option>
                 @endforeach
             </select>
         </div>
         <div class="col-md-2">
-            <input type="date" class="form-control" id="dateFromFilter" placeholder="From Date">
+            <select class="form-control filter-select" id="monthFilter">
+                <option value="">All Months</option>
+                @php
+                    $months = [
+                        '01' => 'January', '02' => 'February', '03' => 'March', 
+                        '04' => 'April', '05' => 'May', '06' => 'June', 
+                        '07' => 'July', '08' => 'August', '09' => 'September', 
+                        '10' => 'October', '11' => 'November', '12' => 'December'
+                    ];
+                    $currentMonth = date('m');
+                    $currentYear = date('Y');
+                @endphp
+                @php
+                    $currentMonth = date('m');
+                    $currentYear = date('Y');
+                @endphp
+                @foreach($months as $key => $month)
+                    @php
+                        $isCurrentMonth = ($key == $currentMonth);
+                    @endphp
+                    <option value="{{ $key }}" {{ $isCurrentMonth ? 'selected' : '' }}>
+                        {{ $month }} {{ $currentYear }}
+                    </option>
+                @endforeach
+            </select>
+        </div>
+        <div class="col-md-1" style="display: none;">
+            <input type="hidden" class="form-control filter-input" id="yearFilter" value="{{ $currentYear }}">
         </div>
         <div class="col-md-2">
-            <input type="date" class="form-control" id="dateToFilter" placeholder="To Date">
-        </div>
-        <div class="col-md-2">
-            <select class="form-control" id="statusFilter">
-                <option value="">All Status</option>
+            <select class="form-control filter-select" id="statusFilter" data-placeholder="Select Status">
+                <option value=""></option>
                 <option value="pending">Pending</option>
                 <option value="received">Received</option>
                 <option value="partial">Partial</option>
@@ -180,6 +204,8 @@
 
 @section('styles')
     <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/toastr.js/latest/toastr.min.css">
+    <link href="https://cdn.jsdelivr.net/npm/select2@4.1.0-rc.0/dist/css/select2.min.css" rel="stylesheet" />
+    <link rel="stylesheet" href="https://cdn.jsdelivr.net/npm/select2-bootstrap-5-theme@1.3.0/dist/select2-bootstrap-5-theme.min.css" />
     <style>
         /* Button group styling for action columns */
         .btn-group .btn {
@@ -240,6 +266,21 @@
         .rupee-icon {
             margin-right: 2px;
         }
+        
+        /* Style for Select2 dropdowns */
+        .select2-container--bootstrap-5 .select2-selection {
+            min-height: 38px;
+            display: flex;
+            align-items: center;
+        }
+        
+        .select2-container--bootstrap-5 .select2-selection--single .select2-selection__rendered {
+            padding-left: 12px;
+        }
+        
+        .select2-container--bootstrap-5 .select2-selection--single .select2-selection__arrow {
+            height: 36px;
+        }
     </style>
 @endsection
 
@@ -248,12 +289,14 @@
     <script src="https://cdnjs.cloudflare.com/ajax/libs/toastr.js/latest/toastr.min.js"></script>
     <script src="https://cdn.datatables.net/1.10.21/js/jquery.dataTables.min.js"></script>
     <script src="https://cdn.datatables.net/1.10.21/js/dataTables.bootstrap4.min.js"></script>
+    <script src="https://cdn.jsdelivr.net/npm/select2@4.1.0-rc.0/dist/js/select2.min.js"></script>
     <script>
-        // Function to get first and last day of current month
-        function getCurrentMonthRange() {
-            const now = new Date();
-            const firstDay = new Date(now.getFullYear(), now.getMonth(), 1);
-            const lastDay = new Date(now.getFullYear(), now.getMonth() + 1, 0);
+        // Function to get first and last day of a month
+        function getMonthRange(month, year) {
+            if (!month) return { from: null, to: null };
+            
+            const firstDay = new Date(year, month - 1, 1);
+            const lastDay = new Date(year, month, 0);
             
             // Format as YYYY-MM-DD for date inputs
             const format = date => date.toISOString().split('T')[0];
@@ -265,10 +308,15 @@
         }
 
         $(function () {
-            // Set default date range to current month
-            const currentMonth = getCurrentMonthRange();
-            $('#dateFromFilter').val(currentMonth.from);
-            $('#dateToFilter').val(currentMonth.to);
+            // Initialize Select2
+            $('.filter-select').select2({
+                theme: 'bootstrap-5',
+                width: '100%',
+                placeholder: function() {
+                    return $(this).data('placeholder') || 'Select an option';
+                },
+                allowClear: true
+            });
 
             // Initialize DataTable
             var table = $('.data-table').DataTable({
@@ -278,20 +326,33 @@
                     url: "/incomes",
                     type: 'GET',
                     headers: {
-                        'X-Requested-With': 'XMLHttpRequest'
+                        'X-Requested-With': 'XMLHttpRequest',
+                        'Accept': 'application/json'
                     },
                     data: function(d) {
-                        return {
-                            client_id: $('#clientFilter').val(),
-                            date_from: $('#dateFromFilter').val() || currentMonth.from,
-                            date_to: $('#dateToFilter').val() || currentMonth.to,
-                            status: $('#statusFilter').val(),
+                        const month = $('#monthFilter').val();
+                        const year = $('#yearFilter').val();
+                        const dateRange = getMonthRange(month, year);
+                        
+                        var params = {
+                            client_id: $('#clientFilter').val() || '',
+                            status: $('#statusFilter').val() || '',
+                            month: month,
+                            year: year,
                             draw: d.draw,
                             start: d.start,
                             length: d.length,
                             search: d.search,
                             order: d.order
                         };
+                        
+                        // Add date range if month is selected
+                        if (month) {
+                            params.date_from = dateRange.from;
+                            params.date_to = dateRange.to;
+                        }
+                        
+                        return params;
                     },
                     dataSrc: function(json) {
                         // Update totals in footer when data is loaded
@@ -434,17 +495,31 @@
             });
 
             // Filter functionality
-            $('#filterBtn').click(function() {
-                table.ajax.reload();
-                toastr.info('Filter applied');
+            function applyFilters() {
+                table.ajax.reload(null, false); // false means don't reset paging
+                toastr.info('Applying filters...');
+            }
+            
+            // Handle filter button click
+            $('#filterBtn').click(applyFilters);
+            
+            // Handle changes in select elements
+            $('.filter-select').on('change', function() {
+                applyFilters();
             });
             
             // Handle Enter key in filter inputs
-            $('#clientFilter, #dateFromFilter, #dateToFilter, #statusFilter').keypress(function(e) {
-                if (e.which === 13) { // Enter key
-                    table.ajax.reload();
+            $('.filter-input').on('keypress', function(e) {
+                if (e.which === 13) {
+                    applyFilters();
                 }
             });
+            
+            // Initialize with current month selected
+            const currentMonth = '{{ date('m') }}';
+            if ($('#monthFilter').val() === '') {
+                $('#monthFilter').val(currentMonth).trigger('change');
+            }
 
             // Auto calculate amounts
             $('#total_amount, #received_amount').on('input', function() {

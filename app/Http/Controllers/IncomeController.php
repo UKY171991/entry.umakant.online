@@ -38,6 +38,27 @@ class IncomeController extends Controller
 
             $query = Income::with('client');
 
+            // Apply client filter
+            if ($request->filled('client_id')) {
+                $query->where('client_id', $request->client_id);
+            }
+            
+            // Apply status filter
+            if ($request->filled('status')) {
+                switch ($request->status) {
+                    case 'pending':
+                        $query->where('pending_amount', '>', 0);
+                        break;
+                    case 'received':
+                        $query->where('pending_amount', 0);
+                        break;
+                    case 'partial':
+                        $query->where('pending_amount', '>', 0)
+                              ->where('received_amount', '>', 0);
+                        break;
+                }
+            }
+            
             // Apply search filter
             if (!empty($search_value)) {
                 $query->where(function($q) use ($search_value) {
@@ -51,19 +72,11 @@ class IncomeController extends Controller
                 });
             }
 
-            // Apply date range filter
-            if ($request->has('date_from') && $request->date_from) {
-                $query->where('date', '>=', $request->date_from);
-            }
-            
-            if ($request->has('date_to') && $request->date_to) {
-                $query->where('date', '<=', $request->date_to);
-            }
-            
-            // Keep the month and year filters for backward compatibility
-            if ($request->has('month') && $request->month) {
-                // Use SQLite compatible date formatting
-                $query->whereRaw('strftime("%Y-%m", date) = ?', [$request->month]);
+            // Apply month filter if provided
+            if ($request->filled('month') && $request->filled('year')) {
+                $month = str_pad($request->month, 2, '0', STR_PAD_LEFT);
+                $year = $request->year;
+                $query->whereRaw('strftime("%Y-%m", date) = ?', ["$year-$month"]);
             }
 
             if ($request->has('year') && $request->year) {

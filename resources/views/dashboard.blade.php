@@ -49,6 +49,60 @@
     </div>
 </div>
 
+<!-- Current Month Summary -->
+<div class="row mt-4">
+    <div class="col-12 col-sm-6 col-md-4">
+        <div class="info-box">
+            <span class="info-box-icon bg-success elevation-1"><i class="fas fa-wallet"></i></span>
+            <div class="info-box-content">
+                <span class="info-box-text">Current Month Income</span>
+                <span class="info-box-number">₹{{ number_format($stats['current_month_income'], 2) }}</span>
+                <div class="progress mt-1">
+                    <div class="progress-bar bg-success" style="width: 100%"></div>
+                </div>
+                <small class="text-muted">As of {{ now()->format('M Y') }}</small>
+            </div>
+        </div>
+    </div>
+    
+    <div class="col-12 col-sm-6 col-md-4">
+        <div class="info-box">
+            <span class="info-box-icon bg-danger elevation-1"><i class="fas fa-receipt"></i></span>
+            <div class="info-box-content">
+                <span class="info-box-text">Current Month Expenses</span>
+                <span class="info-box-number">₹{{ number_format($stats['current_month_expenses'], 2) }}</span>
+                <div class="progress mt-1">
+                    <div class="progress-bar bg-danger" style="width: 100%"></div>
+                </div>
+                <small class="text-muted">As of {{ now()->format('M Y') }}</small>
+            </div>
+        </div>
+    </div>
+    
+    <div class="col-12 col-sm-6 col-md-4">
+        <div class="info-box">
+            <span class="info-box-icon bg-info elevation-1"><i class="fas fa-calculator"></i></span>
+            <div class="info-box-content">
+                <span class="info-box-text">Current Month Net</span>
+                @php
+                    $netClass = $stats['current_month_net'] >= 0 ? 'text-success' : 'text-danger';
+                @endphp
+                <span class="info-box-number {{ $netClass }}">₹{{ number_format($stats['current_month_net'], 2) }}</span>
+                <div class="progress mt-1">
+                    @php
+                        $progressWidth = $stats['current_month_income'] > 0 
+                            ? abs(($stats['current_month_net'] / $stats['current_month_income']) * 100) 
+                            : 0;
+                        $progressClass = $stats['current_month_net'] >= 0 ? 'bg-info' : 'bg-danger';
+                    @endphp
+                    <div class="progress-bar {{ $progressClass }}" style="width: {{ min($progressWidth, 100) }}%"></div>
+                </div>
+                <small class="text-muted">Net for {{ now()->format('M Y') }}</small>
+            </div>
+        </div>
+    </div>
+</div>
+
 <!-- Second row of info boxes -->
 <div class="row">
     <div class="col-12 col-sm-6 col-md-3">

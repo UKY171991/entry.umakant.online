@@ -15,6 +15,10 @@ class DashboardController extends Controller
 {
     public function index()
     {
+        // Get current month and year
+        $currentMonth = now()->month;
+        $currentYear = now()->year;
+        
         // Get counts for dashboard cards
         $stats = [
             'total_clients' => Client::count(),
@@ -23,9 +27,16 @@ class DashboardController extends Controller
             'total_tasks' => PendingTask::count(),
             'total_income' => Income::sum('total_amount') ?? 0,
             'total_expenses' => Expense::sum('amount') ?? 0,
+            'current_month_income' => Income::whereYear('date', $currentYear)
+                                        ->whereMonth('date', $currentMonth)
+                                        ->sum('total_amount') ?? 0,
+            'current_month_expenses' => Expense::whereYear('date', $currentYear)
+                                           ->whereMonth('date', $currentMonth)
+                                           ->sum('amount') ?? 0,
         ];
         
         $stats['net_profit'] = $stats['total_income'] - $stats['total_expenses'];
+        $stats['current_month_net'] = $stats['current_month_income'] - $stats['current_month_expenses'];
         
         // Get monthly data for the last 12 months
         $monthlyIncomes = $this->getMonthlyIncomes();

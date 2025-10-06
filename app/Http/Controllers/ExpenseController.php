@@ -14,50 +14,119 @@ class ExpenseController extends Controller
     public function index(Request $request)
     {
         if ($request->ajax()) {
-            $data = Expense::orderBy('date', 'desc');
+            $draw = $request->get('draw');
+            $start = $request->get('start', 0);
+            $length = $request->get('length', 10);
+            $search_value = '';
+            
+            // Safely get search value
+            $search = $request->get('search');
+            if (is_array($search) && isset($search['value'])) {
+                $search_value = $search['value'];
+            }
+            
+            $query = Expense::query();
 
             // Apply filters
-            if ($request->has('month') && $request->month) {
-                $data->whereRaw('strftime("%Y-%m", date) = ?', [$request->month]);
+            if ($request->filled('month') && $request->filled('year')) {
+                $month = str_pad($request->month, 2, '0', STR_PAD_LEFT);
+                $year = $request->year;
+                $query->whereRaw('strftime("%Y-%m", date) = ?', ["$year-$month"]);
+            } elseif ($request->filled('date_from') && $request->filled('date_to')) {
+                $query->whereBetween('date', [$request->date_from, $request->date_to]);
             }
 
-            if ($request->has('year') && $request->year) {
-                $data->whereRaw('strftime("%Y", date) = ?', [$request->year]);
+            if ($request->filled('category')) {
+                $query->where('category', 'like', '%' . $request->category . '%');
             }
 
-            if ($request->has('category') && $request->category) {
-                $data->where('category', 'like', '%' . $request->category . '%');
+            if ($request->filled('expense_name')) {
+                $query->where('expense_name', 'like', '%' . $request->expense_name . '%');
             }
 
-            if ($request->has('expense_name') && $request->expense_name) {
-                $data->where('expense_name', 'like', '%' . $request->expense_name . '%');
+            // Apply search
+            if (!empty($search_value)) {
+                $query->where(function($q) use ($search_value) {
+                    $q->where('expense_name', 'like', '%' . $search_value . '%')
+                      ->orWhere('category', 'like', '%' . $search_value . '%')
+                      ->orWhere('amount', 'like', '%' . $search_value . '%')
+                      ->orWhere('date', 'like', '%' . $search_value . '%');
+                });
             }
 
-             try {
-                 return DataTables::of($data)
-                     ->addIndexColumn()
-                     ->addColumn('amount', function($row) {
-                         return '<span class="currency-amount currency-negative"><i class="fas fa-rupee-sign rupee-icon"></i>' . number_format($row->amount, 2) . '</span>';
-                     })
-                     ->addColumn('action', function($row){
-                         return '<div class="btn-group" role="group">
-                             <button type="button" class="btn btn-info btn-sm editExpense" data-id="'.$row->id.'" title="Edit Expense">
-                                 <i class="fas fa-edit"></i>
-                             </button>
-                             <button type="button" class="btn btn-danger btn-sm deleteExpense" data-id="'.$row->id.'" title="Delete Expense">
-                                 <i class="fas fa-trash"></i>
-                             </button>
-                         </div>';
-                     })
-                     ->rawColumns(['action', 'amount'])
-                     ->make(true);
-             } catch (\Exception $e) {
-                 return response()->json(['error' => $e->getMessage(), 'trace' => $e->getTraceAsString()], 500);
-             }
+            // Get totals for filtered records
+            $filteredTotal = (clone $query)->sum('amount');
+            
+            // Apply ordering
+            $order = $request->get('order');
+            if (!empty($order) && isset($order[0]['column'])) {
+                $orderColumn = $order[0]['column'];
+                $orderDir = $order[0]['dir'] ?? 'desc';
+                $columns = $request->get('columns');
+                
+                if (isset($columns[$orderColumn]['name']) && !empty($columns[$orderColumn]['name'])) {
+                    $query->orderBy($columns[$orderColumn]['name'], $orderDir);
+                } else {
+                    $query->orderBy('date', 'desc');
+                }
+            } else {
+                $query->orderBy('date', 'desc');
+            }
+
+            // Get paginated results
+            $totalRecords = Expense::count();
+            $filteredRecords = $query->count();
+            $expenses = $query->offset($start)->limit($length)->get();
+
+            $data = [];
+            $i = $start;
+            foreach ($expenses as $expense) {
+                $data[] = [
+                    'DT_RowIndex' => ++$i,
+                    'id' => $expense->id,
+                    'expense_name' => $expense->expense_name,
+                    'amount' => '<span class="currency-amount currency-negative"><i class="fas fa-rupee-sign rupee-icon"></i>' . number_format($expense->amount, 2) . '</span>',
+                    'category' => $expense->category,
+                    'date' => date('m/d/Y', strtotime($expense->date)),
+                    'action' => '<div class="btn-group" role="group">
+                        <button type="button" class="btn btn-info btn-sm editExpense" data-id="'.$expense->id.'" title="Edit Expense">
+                            <i class="fas fa-edit"></i>
+                        </button>
+                        <button type="button" class="btn btn-danger btn-sm deleteExpense" data-id="'.$expense->id.'" title="Delete Expense">
+                            <i class="fas fa-trash"></i>
+                        </button>
+                    </div>'
+                ];
+            }
+
+            try {
+                return response()->json([
+                    "draw" => intval($draw),
+                    "recordsTotal" => intval($totalRecords),
+                    "recordsFiltered" => intval($filteredRecords),
+                    "data" => $data,
+                    "filtered_total" => number_format($filteredTotal, 2)
+                ]);
+            } catch (\Exception $e) {
+                return response()->json(['error' => $e->getMessage(), 'trace' => $e->getTraceAsString()], 500);
+            }
         }
 
         $totalExpenses = Expense::sum('amount');
-        return view('expenses.index_new', compact('totalExpenses'));
+        // Get unique categories from expenses
+        $categories = Expense::select('category')
+            ->distinct()
+            ->orderBy('category')
+            ->pluck('category')
+            ->filter()
+            ->values();
+            
+        return view('expenses.index_new', [
+            'totalExpenses' => $totalExpenses,
+            'categories' => $categories,
+            'currentYear' => date('Y'),
+            'currentMonth' => date('m')
+        ]);
     }
 
     /**
