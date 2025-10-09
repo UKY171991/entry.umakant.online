@@ -20,8 +20,8 @@
             <div class="col-md-3">
                 <div class="form-group">
                     <label for="categoryFilter">Category</label>
-                    <select class="form-control form-control-sm filter-select" id="categoryFilter" data-placeholder="Select Category">
-                        <option value="">All Categories</option>
+                    <select class="form-control form-control-sm" id="categoryFilter">
+                        <option value="" selected>All Categories</option>
                         @foreach($categories as $category)
                             <option value="{{ $category }}">{{ $category }}</option>
                         @endforeach
@@ -31,7 +31,7 @@
             <div class="col-md-3">
                 <div class="form-group">
                     <label for="monthFilter">Month</label>
-                    <select class="form-control form-control-sm filter-select" id="monthFilter">
+                    <select class="form-control form-control-sm" id="monthFilter">
                         <option value="">All Time</option>
                         @php
                             $months = [
@@ -55,8 +55,8 @@
             <div class="col-md-3">
                 <div class="form-group">
                     <label for="statusFilter">Status</label>
-                    <select class="form-control form-control-sm filter-select" id="statusFilter">
-                        <option value="">All Status</option>
+                    <select class="form-control form-control-sm" id="statusFilter">
+                        <option value="" selected>All Status</option>
                         <option value="paid">Paid</option>
                         <option value="pending">Pending</option>
                         <option value="recurring">Recurring</option>
@@ -298,22 +298,13 @@
     }
 
     $(function () {
-        // Initialize Select2
-        $('.filter-select').select2({
-            theme: 'bootstrap-5',
-            width: '100%',
-            placeholder: function() {
-                return $(this).data('placeholder') || 'Select an option';
-            },
-            allowClear: true
-        });
-
-        // Initialize Select2 for category
+        // Initialize Select2 ONLY for modal form dropdowns (category select in add/edit form)
         $('.select2').select2({
             theme: 'bootstrap-5',
             width: '100%',
-            placeholder: 'Select an option',
-            allowClear: true
+            placeholder: 'Select Category',
+            allowClear: true,
+            dropdownParent: $('#ajaxModel') // Ensure dropdown works in modal
         });
 
         // Set default date to today
@@ -400,25 +391,13 @@
                 },
                 dataSrc: function(json) {
                     // Update totals in footer when data is loaded
-                    if (json.recordsTotal > 0) {
-                        // Calculate total from the data if not provided in the response
-                        let total = 0;
-                        if (json.data && json.data.length > 0) {
-                            total = json.data.reduce((sum, row) => {
-                                // Extract the numeric value from the amount (handles both raw numbers and formatted strings)
-                                let amount = row.amount;
-                                if (typeof amount === 'string') {
-                                    // Remove any non-numeric characters except decimal point
-                                    amount = amount.replace(/[^\d.-]/g, '');
-                                }
-                                return sum + parseFloat(amount || 0);
-                            }, 0);
-                        }
+                    if (json.totals && json.totals.total_amount) {
+                        // Use server-provided total (comes as formatted string like "8,000.00")
+                        // Remove commas before parsing to get correct number
+                        let totalString = json.totals.total_amount.toString();
+                        let totalNumber = parseFloat(totalString.replace(/,/g, ''));
                         
-                        // Use the server-provided total if available, otherwise use the calculated total
-                        const displayTotal = json.totals?.total_amount || total;
-                        
-                        const formattedTotal = parseFloat(displayTotal).toLocaleString('en-IN', {
+                        const formattedTotal = totalNumber.toLocaleString('en-IN', {
                             maximumFractionDigits: 2,
                             minimumFractionDigits: 2
                         });
@@ -488,26 +467,8 @@
                 {data: 'action', name: 'action', orderable: false, searchable: false, className: 'text-center'}
             ],
             initComplete: function() {
-                // Initialize Select2 after table is initialized
-                $('.filter-select').select2({
-                    theme: 'bootstrap-5',
-                    width: '100%',
-                    placeholder: function() {
-                        return $(this).data('placeholder') || 'Select an option';
-                    },
-                    allowClear: true
-                });
-
-                // Apply the current month filter after table is initialized
-                const currentDate = new Date();
-                const currentMonth = String(currentDate.getMonth() + 1).padStart(2, '0');
-                const currentYear = currentDate.getFullYear();
-                
-                if (!$('#monthFilter').val()) {
-                    $('#monthFilter').val(`${currentYear}-${currentMonth}`);
-                    $('#yearFilter').val(currentYear);
-                    table.draw();
-                }
+                // Auto-apply current month filter on page load (month is already pre-selected in HTML)
+                // This will show expenses for the current month by default
             }
         });
 
@@ -527,33 +488,24 @@
             applyFilters();
         });
         
-        // Handle changes in select elements
-        $('.filter-select').on('change', function() {
-            applyFilters();
-        });
-        
-        // Handle Enter key in search input
-        $('#expenseNameFilter').on('keyup', function(e) {
-            if (e.which === 13) { // Enter key
-                applyFilters();
-                return false;
-            }
-        });
-        
-        // Clear Filters button removed to match Income page layout
-        
-        // Handle month/year filter changes
-        $('#monthFilter, #yearFilter').on('change', function() {
+        // Handle changes in all filter dropdowns
+        $('#categoryFilter, #monthFilter, #statusFilter').on('change', function() {
             applyFilters();
         });
         
         // Debounced search for expense name filter
         let searchTimeout;
-        $('#expenseNameFilter').on('keyup', function() {
+        $('#expenseNameFilter').on('keyup', function(e) {
             clearTimeout(searchTimeout);
+            
+            // Apply immediately on Enter key
+            if (e.which === 13) {
+                applyFilters();
+                return false;
+            }
+            
+            // Otherwise debounce the search
             searchTimeout = setTimeout(function() {
-                // Reset to first page when searching
-                table.page('first').draw('page');
                 applyFilters();
             }, 500);
         });
@@ -652,6 +604,12 @@
             });
         });
 
+        // Save button click handler - triggers form submission
+        $('#saveBtn').click(function(e) {
+            e.preventDefault();
+            $('#expenseForm').submit();
+        });
+
         // Save Expense (Add or Edit)
         $('#expenseForm').on('submit', function (e) {
             e.preventDefault();
@@ -677,11 +635,10 @@
             $.ajax({
                 url: url,
                 type: method,
-                data: $(this).serialize(),
+                data: $('#expenseForm').serialize(),
                 dataType: 'json',
                 success: function (data) {
                     $('#expenseForm').trigger("reset");
-                    $('#ajaxModel').modal('hide');
                     $('#ajaxModel').modal('hide');
                     table.draw();
                     toastr.success(data.success || data.message || 'Operation successful');

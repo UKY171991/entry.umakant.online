@@ -37,11 +37,20 @@ class ExpenseController extends Controller
             }
 
             if ($request->filled('category')) {
-                $query->where('category', 'like', '%' . $request->category . '%');
+                $query->where('category', $request->category);
             }
 
             if ($request->filled('expense_name')) {
                 $query->where('expense_name', 'like', '%' . $request->expense_name . '%');
+            }
+            
+            // Handle custom search parameter from filter
+            if ($request->filled('search')) {
+                $query->where('expense_name', 'like', '%' . $request->search . '%');
+            }
+
+            if ($request->filled('status')) {
+                $query->where('status', $request->status);
             }
 
             // Apply search
@@ -81,12 +90,29 @@ class ExpenseController extends Controller
             $data = [];
             $i = $start;
             foreach ($expenses as $expense) {
+                // Format status badge
+                $statusBadge = '';
+                switch ($expense->status) {
+                    case 'paid':
+                        $statusBadge = '<span class="badge badge-success">Paid</span>';
+                        break;
+                    case 'pending':
+                        $statusBadge = '<span class="badge badge-warning">Pending</span>';
+                        break;
+                    case 'recurring':
+                        $statusBadge = '<span class="badge badge-info">Recurring</span>';
+                        break;
+                    default:
+                        $statusBadge = '<span class="badge badge-secondary">Unknown</span>';
+                }
+                
                 $data[] = [
                     'DT_RowIndex' => ++$i,
                     'id' => $expense->id,
                     'expense_name' => $expense->expense_name,
                     'amount' => '<span class="currency-amount currency-negative"><i class="fas fa-rupee-sign rupee-icon"></i>' . number_format($expense->amount, 2) . '</span>',
                     'category' => $expense->category,
+                    'status' => $statusBadge,
                     'date' => date('m/d/Y', strtotime($expense->date)),
                     'action' => '<div class="btn-group" role="group">
                         <button type="button" class="btn btn-info btn-sm editExpense" data-id="'.$expense->id.'" title="Edit Expense">
@@ -105,7 +131,9 @@ class ExpenseController extends Controller
                     "recordsTotal" => intval($totalRecords),
                     "recordsFiltered" => intval($filteredRecords),
                     "data" => $data,
-                    "filtered_total" => number_format($filteredTotal, 2)
+                    "totals" => [
+                        "total_amount" => number_format($filteredTotal, 2)
+                    ]
                 ]);
             } catch (\Exception $e) {
                 return response()->json(['error' => $e->getMessage(), 'trace' => $e->getTraceAsString()], 500);
@@ -152,7 +180,9 @@ class ExpenseController extends Controller
                 'expense_name' => $request->expense_name,
                 'amount' => $request->amount,
                 'category' => $request->category,
+                'status' => $request->status ?? 'paid',
                 'date' => $request->date,
+                'notes' => $request->notes,
             ]
         );
 
