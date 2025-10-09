@@ -5,74 +5,51 @@
 
 @section('content')
 <!-- Filter Section -->
-<div class="filter-section card mb-4">
-    <div class="card-header py-2">
-        <h6 class="m-0 font-weight-bold text-primary">Filter Expenses</h6>
-    </div>
-    <div class="card-body">
-        <div class="row">
-            <div class="col-md-3">
-                <div class="form-group">
-                    <label for="expenseNameFilter">Search</label>
-                    <input type="text" class="form-control form-control-sm" id="expenseNameFilter" placeholder="Search expenses...">
-                </div>
-            </div>
-            <div class="col-md-3">
-                <div class="form-group">
-                    <label for="categoryFilter">Category</label>
-                    <select class="form-control form-control-sm" id="categoryFilter">
-                        <option value="" selected>All Categories</option>
-                        @foreach($categories as $category)
-                            <option value="{{ $category }}">{{ $category }}</option>
-                        @endforeach
-                    </select>
-                </div>
-            </div>
-            <div class="col-md-3">
-                <div class="form-group">
-                    <label for="monthFilter">Month</label>
-                    <select class="form-control form-control-sm" id="monthFilter">
-                        <option value="">All Time</option>
-                        @php
-                            $months = [
-                                '01' => 'January', '02' => 'February', '03' => 'March', 
-                                '04' => 'April', '05' => 'May', '06' => 'June', 
-                                '07' => 'July', '08' => 'August', '09' => 'September', 
-                                '10' => 'October', '11' => 'November', '12' => 'December'
-                            ];
-                            $currentMonth = date('m');
-                            $currentYear = date('Y');
-                        @endphp
-                        @foreach($months as $key => $month)
-                            <option value="{{ $key }}" {{ $key == $currentMonth ? 'selected' : '' }}>
-                                {{ $month }} {{ $currentYear }}
-                            </option>
-                        @endforeach
-                    </select>
-                    <input type="hidden" id="yearFilter" value="{{ $currentYear }}">
-                </div>
-            </div>
-            <div class="col-md-3">
-                <div class="form-group">
-                    <label for="statusFilter">Status</label>
-                    <select class="form-control form-control-sm" id="statusFilter">
-                        <option value="" selected>All Status</option>
-                        <option value="paid">Paid</option>
-                        <option value="pending">Pending</option>
-                        <option value="recurring">Recurring</option>
-                    </select>
-                </div>
-            </div>
+<div class="filter-section">
+    <div class="row">
+        <div class="col-md-2">
+            <input type="text" class="form-control" id="expenseNameFilter" placeholder="Search expenses...">
         </div>
-        <div class="row">
-            <div class="col-md-12 text-right">
-                <button class="btn btn-sm btn-danger" id="filterBtn" type="button">
-                    <i class="fas fa-filter"></i> Apply Filters
-                </button>
-                <button class="btn btn-sm btn-success" id="createNewExpense">
-                    <i class="fas fa-plus"></i> Add New Expense
-                </button>
-            </div>
+        <div class="col-md-2">
+            <select class="form-control filter-select" id="categoryFilter">
+                <option value="">All Categories</option>
+                @foreach($categories as $category)
+                    <option value="{{ $category }}">{{ $category }}</option>
+                @endforeach
+            </select>
+        </div>
+        <div class="col-md-2">
+            <select class="form-control filter-select" id="monthFilter">
+                <option value="">All Time</option>
+                @php
+                    $months = [
+                        '01' => 'January', '02' => 'February', '03' => 'March', 
+                        '04' => 'April', '05' => 'May', '06' => 'June', 
+                        '07' => 'July', '08' => 'August', '09' => 'September', 
+                        '10' => 'October', '11' => 'November', '12' => 'December'
+                    ];
+                    $currentMonth = date('m');
+                    $currentYear = date('Y');
+                @endphp
+                @foreach($months as $key => $month)
+                    <option value="{{ $key }}" {{ $key == $currentMonth ? 'selected' : '' }}>
+                        {{ $month }} {{ $currentYear }}
+                    </option>
+                @endforeach
+            </select>
+            <input type="hidden" id="yearFilter" value="{{ $currentYear }}">
+        </div>
+        <div class="col-md-2">
+            <select class="form-control filter-select" id="statusFilter">
+                <option value="">All Status</option>
+                <option value="paid">Paid</option>
+                <option value="pending">Pending</option>
+                <option value="recurring">Recurring</option>
+            </select>
+        </div>
+        <div class="col-md-4 text-end">
+            <button class="btn btn-danger" id="filterBtn"><i class="fas fa-filter"></i> Filter</button>
+            <button class="btn btn-success" id="createNewExpense"><i class="fas fa-plus"></i> Add Expense</button>
         </div>
     </div>
 </div>
