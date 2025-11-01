@@ -8,8 +8,10 @@
     
     <!-- Google Font: Source Sans Pro -->
     <link rel="stylesheet" href="https://fonts.googleapis.com/css?family=Source+Sans+Pro:300,400,400i,700&display=fallback">
-    <!-- Font Awesome -->
-    <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.0.0/css/all.min.css">
+    <!-- Font Awesome with fallback -->
+    <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.4.0/css/all.min.css" integrity="sha512-iecdLmaskl7CVkqkXNQ/ZH/XLlvWZOJyj7Yy7tcenmpD1ypASozpmT/E0iPtmFIB46ZmdtAc9eNBvH0H/ZpiBw==" crossorigin="anonymous" referrerpolicy="no-referrer" />
+    <!-- Fallback Font Awesome from different CDN -->
+    <link rel="stylesheet" href="https://use.fontawesome.com/releases/v6.4.0/css/all.css" crossorigin="anonymous" />
     <!-- AdminLTE CSS -->
     <link rel="stylesheet" href="https://cdn.jsdelivr.net/npm/admin-lte@3.2/dist/css/adminlte.min.css">
     <!-- DataTables CSS -->
@@ -217,6 +219,70 @@
             color: #28a745;
             font-weight: bold;
         }
+        
+        /* Ensure Font Awesome icons load properly */
+        .fas, .far, .fab {
+            font-family: "Font Awesome 6 Free", "Font Awesome 6 Pro", "Font Awesome 5 Free", "Font Awesome 5 Pro" !important;
+        }
+        
+        .fas {
+            font-weight: 900 !important;
+        }
+        
+        .far {
+            font-weight: 400 !important;
+        }
+        
+        /* Income comparison widget icon fixes */
+        .income-comparison-card .fas {
+            display: inline-block;
+            font-style: normal;
+            font-variant: normal;
+            text-rendering: auto;
+            line-height: 1;
+        }
+        
+        /* Specific icon fallbacks */
+        .fas.fa-calendar-alt:before { content: "\f073"; }
+        .fas.fa-calendar:before { content: "\f133"; }
+        .fas.fa-wallet:before { content: "\f555"; }
+        .fas.fa-bullseye:before { content: "\f140"; }
+        .fas.fa-chart-line:before { content: "\f201"; }
+        .fas.fa-trophy:before { content: "\f091"; }
+        .fas.fa-clock:before { content: "\f017"; }
+        .fas.fa-exclamation-triangle:before { content: "\f071"; }
+        .fas.fa-arrow-up:before { content: "\f062"; }
+        .fas.fa-arrow-down:before { content: "\f063"; }
+        .fas.fa-info-circle:before { content: "\f05a"; }
+        .fas.fa-cog:before { content: "\f013"; }
+        
+        /* Ensure icons are visible */
+        .income-comparison-card i {
+            opacity: 1 !important;
+            visibility: visible !important;
+            display: inline-block !important;
+            width: auto !important;
+            height: auto !important;
+            min-width: 1em;
+            text-align: center;
+        }
+        
+        /* Fix icon spacing */
+        .income-comparison-card .fas {
+            margin-right: 0.25rem;
+        }
+        
+        .income-comparison-card .fas.fa-4x {
+            margin-right: 0;
+        }
+        
+        /* Ensure Font Awesome loads */
+        @font-face {
+            font-family: 'Font Awesome 6 Free';
+            font-style: normal;
+            font-weight: 900;
+            font-display: swap;
+        }
     </style>
     @yield('styles')
 </head>
@@ -365,6 +431,12 @@
                         </a>
                     </li>
                     <li class="nav-item">
+                        <a href="/inbox" class="nav-link {{ request()->is('inbox*') || request()->is('email-configurations*') ? 'active' : '' }}">
+                            <i class="nav-icon fas fa-inbox"></i>
+                            <p>Inbox</p>
+                        </a>
+                    </li>
+                    <li class="nav-item">
                         <a href="/websites" class="nav-link {{ request()->is('websites*') ? 'active' : '' }}">
                             <i class="nav-icon fas fa-globe"></i>
                             <p>Websites</p>
@@ -374,6 +446,12 @@
                         <a href="/pending-tasks" class="nav-link {{ request()->is('pending-tasks*') ? 'active' : '' }}">
                             <i class="nav-icon fas fa-tasks"></i>
                             <p>Pending Tasks</p>
+                        </a>
+                    </li>
+                    <li class="nav-item">
+                        <a href="/settings" class="nav-link {{ request()->is('settings*') ? 'active' : '' }}">
+                            <i class="nav-icon fas fa-cog"></i>
+                            <p>Settings</p>
                         </a>
                     </li>
                 </ul>
@@ -475,6 +553,19 @@
     $(document).ready(function() {
         // Initialize all AdminLTE components
         $('[data-widget="treeview"]').Treeview('init');
+        
+        // Check if Font Awesome loaded properly
+        setTimeout(function() {
+            var testIcon = $('<i class="fas fa-check" style="position: absolute; left: -9999px;"></i>').appendTo('body');
+            var iconWidth = testIcon.width();
+            testIcon.remove();
+            
+            if (iconWidth === 0) {
+                console.warn('Font Awesome may not have loaded properly');
+                // Add fallback CSS for icons
+                $('head').append('<style>.fas:before { font-family: Arial, sans-serif; }</style>');
+            }
+        }, 1000);
         
         // Auto-hide preloader after 2 seconds
         setTimeout(function() {

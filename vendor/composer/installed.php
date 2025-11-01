@@ -3,7 +3,7 @@
         'name' => 'laravel/laravel',
         'pretty_version' => 'dev-main',
         'version' => 'dev-main',
-        'reference' => 'e30605637fa7d2e726c13b0cf2b2a369725173d0',
+        'reference' => '3835fbf7e7446f89887a8e5d5f26825aa4f290e8',
         'type' => 'project',
         'install_path' => __DIR__ . '/../../',
         'aliases' => array(),
@@ -451,7 +451,7 @@
         'laravel/laravel' => array(
             'pretty_version' => 'dev-main',
             'version' => 'dev-main',
-            'reference' => 'e30605637fa7d2e726c13b0cf2b2a369725173d0',
+            'reference' => '3835fbf7e7446f89887a8e5d5f26825aa4f290e8',
             'type' => 'project',
             'install_path' => __DIR__ . '/../../',
             'aliases' => array(),
@@ -723,6 +723,15 @@
             'install_path' => __DIR__ . '/../phar-io/version',
             'aliases' => array(),
             'dev_requirement' => true,
+        ),
+        'php-imap/php-imap' => array(
+            'pretty_version' => '2.0.3',
+            'version' => '2.0.3.0',
+            'reference' => 'cc1a49a3f68090db182183c59ffbc09055d59f5b',
+            'type' => 'library',
+            'install_path' => __DIR__ . '/../php-imap/php-imap',
+            'aliases' => array(),
+            'dev_requirement' => false,
         ),
         'phpdocumentor/reflection-common' => array(
             'pretty_version' => '2.2.0',

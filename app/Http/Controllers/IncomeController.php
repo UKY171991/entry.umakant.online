@@ -5,6 +5,7 @@ namespace App\Http\Controllers;
 use App\Models\Client;
 use App\Models\Income;
 use Illuminate\Http\Request;
+use Illuminate\Support\Facades\Auth;
 
 class IncomeController extends Controller
 {
@@ -151,7 +152,8 @@ class IncomeController extends Controller
         }
 
         $clients = Client::all();
-        return view('incomes.index', compact('clients'));
+        $userTargetIncome = Auth::user()->daily_target_income;
+        return view('incomes.index', compact('clients', 'userTargetIncome'));
     }
 
     public function create()

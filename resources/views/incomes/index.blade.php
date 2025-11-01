@@ -142,6 +142,9 @@
                         <label for="total_amount">
                             <i class="fas fa-rupee-sign mr-1"></i>
                             Total Amount <span class="text-danger">*</span>
+                            <small id="target-income-indicator" class="badge badge-info ml-2" style="display: none;">
+                                <i class="fas fa-bullseye"></i> Target Amount
+                            </small>
                         </label>
                         <div class="input-group">
                             <div class="input-group-prepend">
@@ -281,6 +284,20 @@
         .select2-container--bootstrap-5 .select2-selection--single .select2-selection__arrow {
             height: 36px;
         }
+        
+        /* Target income indicator styling */
+        #target-income-indicator {
+            font-size: 0.75rem;
+            vertical-align: middle;
+            background-color: #17a2b8;
+            color: white;
+            border-radius: 12px;
+            padding: 2px 8px;
+        }
+        
+        #target-income-indicator i {
+            margin-right: 3px;
+        }
     </style>
 @endsection
 
@@ -291,6 +308,9 @@
     <script src="https://cdn.datatables.net/1.10.21/js/dataTables.bootstrap4.min.js"></script>
     <script src="https://cdn.jsdelivr.net/npm/select2@4.1.0-rc.0/dist/js/select2.min.js"></script>
     <script>
+        // Make user target income available to JavaScript
+        window.userTargetIncome = {{ $userTargetIncome ?? 'null' }};
+        
         // Function to get first and last day of a month
         function getMonthRange(month, year) {
             if (!month) return { from: null, to: null };
@@ -390,7 +410,20 @@
                 $('#incomeForm').trigger("reset");
                 $('#modelHeading').html('<i class="fas fa-rupee-sign mr-2"></i> Add New Income');
                 $('#ajaxModel').modal('show');
-                toastr.info('Ready to add new income');
+                
+                // Auto-fill target income if available (only for new entries)
+                if (window.userTargetIncome && window.userTargetIncome > 0) {
+                    $('#total_amount').val(window.userTargetIncome);
+                    // Show visual indicator that target income was auto-filled
+                    $('#target-income-indicator').show();
+                    // Trigger calculation for pending/received amounts
+                    $('#total_amount').trigger('input');
+                    toastr.info('Ready to add new income (target amount auto-filled)');
+                } else {
+                    // Hide indicator if no target income
+                    $('#target-income-indicator').hide();
+                    toastr.info('Ready to add new income');
+                }
             });
 
             // Reset modal state on close
@@ -402,6 +435,8 @@
                 $('#modelHeading').html('<i class="fas fa-rupee-sign mr-2"></i> Add New Income');
                 // Reset client dropdown to placeholder
                 $('#client_id').val('');
+                // Hide target income indicator
+                $('#target-income-indicator').hide();
             });
 
             // Edit Income
@@ -418,6 +453,8 @@
                     $('#pending_amount').val(data.pending_amount);
                     $('#received_amount').val(data.received_amount);
                     $('#date').val(data.date);
+                    // Hide target income indicator for edits (no auto-fill for existing entries)
+                    $('#target-income-indicator').hide();
                     toastr.info('Income data loaded for editing');
                 })
                 .fail(function(xhr) {
@@ -537,6 +574,18 @@
                 var received = total - pending;
                 if (received >= 0) {
                     $('#received_amount').val(received.toFixed(2));
+                }
+            });
+
+            // Hide target income indicator when user manually changes the total amount
+            $('#total_amount').on('input', function() {
+                // Check if the current value is different from the target income
+                var currentValue = parseFloat($(this).val()) || 0;
+                var targetIncome = parseFloat(window.userTargetIncome) || 0;
+                
+                // Hide indicator if user has modified the auto-filled value
+                if (currentValue !== targetIncome && $('#target-income-indicator').is(':visible')) {
+                    $('#target-income-indicator').fadeOut();
                 }
             });
         });

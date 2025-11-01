@@ -607,6 +607,16 @@ class ComposerStaticInit3b0caa79314c175e483fe142a55fbb80
         ),
     );
 
+    public static $prefixesPsr0 = array (
+        'P' => 
+        array (
+            'PhpImap' => 
+            array (
+                0 => __DIR__ . '/..' . '/php-imap/php-imap/src',
+            ),
+        ),
+    );
+
     public static $classMap = array (
         'App\\Console\\Commands\\SendPendingTaskReminders' => __DIR__ . '/../..' . '/app/Console/Commands/SendPendingTaskReminders.php',
         'App\\Console\\Commands\\SendWebsiteDevelopmentUpdates' => __DIR__ . '/../..' . '/app/Console/Commands/SendWebsiteDevelopmentUpdates.php',
@@ -627,14 +637,23 @@ class ComposerStaticInit3b0caa79314c175e483fe142a55fbb80
         'App\\Http\\Controllers\\IncomeController' => __DIR__ . '/../..' . '/app/Http/Controllers/IncomeController.php',
         'App\\Http\\Controllers\\PendingTaskController' => __DIR__ . '/../..' . '/app/Http/Controllers/PendingTaskController.php',
         'App\\Http\\Controllers\\ProfileController' => __DIR__ . '/../..' . '/app/Http/Controllers/ProfileController.php',
+        'App\\Http\\Controllers\\UserSettingsController' => __DIR__ . '/../..' . '/app/Http/Controllers/UserSettingsController.php',
         'App\\Http\\Controllers\\WebsiteController' => __DIR__ . '/../..' . '/app/Http/Controllers/WebsiteController.php',
         'App\\Http\\Requests\\Auth\\LoginRequest' => __DIR__ . '/../..' . '/app/Http/Requests/Auth/LoginRequest.php',
         'App\\Http\\Requests\\EmailRequest' => __DIR__ . '/../..' . '/app/Http/Requests/EmailRequest.php',
         'App\\Http\\Requests\\ProfileUpdateRequest' => __DIR__ . '/../..' . '/app/Http/Requests/ProfileUpdateRequest.php',
+        'App\\Mail\\GeneralInquiry' => __DIR__ . '/../..' . '/app/Mail/GeneralInquiry.php',
+        'App\\Mail\\HospitalManagement' => __DIR__ . '/../..' . '/app/Mail/HospitalManagement.php',
+        'App\\Mail\\PathologyManagement' => __DIR__ . '/../..' . '/app/Mail/PathologyManagement.php',
         'App\\Mail\\PendingTaskReminder' => __DIR__ . '/../..' . '/app/Mail/PendingTaskReminder.php',
+        'App\\Mail\\ProjectCompletion' => __DIR__ . '/../..' . '/app/Mail/ProjectCompletion.php',
+        'App\\Mail\\ProjectStatusUpdate' => __DIR__ . '/../..' . '/app/Mail/ProjectStatusUpdate.php',
         'App\\Mail\\WebsiteDevelopmentUpdate' => __DIR__ . '/../..' . '/app/Mail/WebsiteDevelopmentUpdate.php',
+        'App\\Mail\\WebsiteProposal' => __DIR__ . '/../..' . '/app/Mail/WebsiteProposal.php',
         'App\\Models\\Client' => __DIR__ . '/../..' . '/app/Models/Client.php',
         'App\\Models\\Email' => __DIR__ . '/../..' . '/app/Models/Email.php',
+        'App\\Models\\EmailConfiguration' => __DIR__ . '/../..' . '/app/Models/EmailConfiguration.php',
+        'App\\Models\\EmailTransaction' => __DIR__ . '/../..' . '/app/Models/EmailTransaction.php',
         'App\\Models\\Expense' => __DIR__ . '/../..' . '/app/Models/Expense.php',
         'App\\Models\\Income' => __DIR__ . '/../..' . '/app/Models/Income.php',
         'App\\Models\\PendingTask' => __DIR__ . '/../..' . '/app/Models/PendingTask.php',
@@ -763,6 +782,8 @@ class ComposerStaticInit3b0caa79314c175e483fe142a55fbb80
         'Cron\\HoursField' => __DIR__ . '/..' . '/dragonmantank/cron-expression/src/Cron/HoursField.php',
         'Cron\\MinutesField' => __DIR__ . '/..' . '/dragonmantank/cron-expression/src/Cron/MinutesField.php',
         'Cron\\MonthField' => __DIR__ . '/..' . '/dragonmantank/cron-expression/src/Cron/MonthField.php',
+        'Database\\Factories\\ClientFactory' => __DIR__ . '/../..' . '/database/factories/ClientFactory.php',
+        'Database\\Factories\\IncomeFactory' => __DIR__ . '/../..' . '/database/factories/IncomeFactory.php',
         'Database\\Factories\\UserFactory' => __DIR__ . '/../..' . '/database/factories/UserFactory.php',
         'Database\\Seeders\\DatabaseSeeder' => __DIR__ . '/../..' . '/database/seeders/DatabaseSeeder.php',
         'Database\\Seeders\\EmailSeeder' => __DIR__ . '/../..' . '/database/seeders/EmailSeeder.php',
@@ -5580,6 +5601,8 @@ class ComposerStaticInit3b0caa79314c175e483fe142a55fbb80
         'PharIo\\Version\\VersionConstraintParser' => __DIR__ . '/..' . '/phar-io/version/src/VersionConstraintParser.php',
         'PharIo\\Version\\VersionConstraintValue' => __DIR__ . '/..' . '/phar-io/version/src/VersionConstraintValue.php',
         'PharIo\\Version\\VersionNumber' => __DIR__ . '/..' . '/phar-io/version/src/VersionNumber.php',
+        'PhpImap\\IncomingMail' => __DIR__ . '/..' . '/php-imap/php-imap/src/PhpImap/IncomingMail.php',
+        'PhpImap\\Mailbox' => __DIR__ . '/..' . '/php-imap/php-imap/src/PhpImap/Mailbox.php',
         'PhpOption\\LazyOption' => __DIR__ . '/..' . '/phpoption/phpoption/src/PhpOption/LazyOption.php',
         'PhpOption\\None' => __DIR__ . '/..' . '/phpoption/phpoption/src/PhpOption/None.php',
         'PhpOption\\Option' => __DIR__ . '/..' . '/phpoption/phpoption/src/PhpOption/Option.php',
@@ -7470,7 +7493,9 @@ class ComposerStaticInit3b0caa79314c175e483fe142a55fbb80
         'Termwind\\ValueObjects\\Node' => __DIR__ . '/..' . '/nunomaduro/termwind/src/ValueObjects/Node.php',
         'Termwind\\ValueObjects\\Style' => __DIR__ . '/..' . '/nunomaduro/termwind/src/ValueObjects/Style.php',
         'Termwind\\ValueObjects\\Styles' => __DIR__ . '/..' . '/nunomaduro/termwind/src/ValueObjects/Styles.php',
+        'Tests\\Feature\\DashboardWidgetIntegrationTest' => __DIR__ . '/../..' . '/tests/Feature/DashboardWidgetIntegrationTest.php',
         'Tests\\TestCase' => __DIR__ . '/../..' . '/tests/TestCase.php',
+        'Tests\\Unit\\DashboardComparisonTest' => __DIR__ . '/../..' . '/tests/Unit/DashboardComparisonTest.php',
         'TheSeer\\Tokenizer\\Exception' => __DIR__ . '/..' . '/theseer/tokenizer/src/Exception.php',
         'TheSeer\\Tokenizer\\NamespaceUri' => __DIR__ . '/..' . '/theseer/tokenizer/src/NamespaceUri.php',
         'TheSeer\\Tokenizer\\NamespaceUriException' => __DIR__ . '/..' . '/theseer/tokenizer/src/NamespaceUriException.php',
@@ -7671,6 +7696,7 @@ class ComposerStaticInit3b0caa79314c175e483fe142a55fbb80
         return \Closure::bind(function () use ($loader) {
             $loader->prefixLengthsPsr4 = ComposerStaticInit3b0caa79314c175e483fe142a55fbb80::$prefixLengthsPsr4;
             $loader->prefixDirsPsr4 = ComposerStaticInit3b0caa79314c175e483fe142a55fbb80::$prefixDirsPsr4;
+            $loader->prefixesPsr0 = ComposerStaticInit3b0caa79314c175e483fe142a55fbb80::$prefixesPsr0;
             $loader->classMap = ComposerStaticInit3b0caa79314c175e483fe142a55fbb80::$classMap;
 
         }, null, ClassLoader::class);

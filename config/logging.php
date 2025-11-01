@@ -127,6 +127,14 @@ return [
             'path' => storage_path('logs/laravel.log'),
         ],
 
+        'email_transactions' => [
+            'driver' => 'daily',
+            'path' => storage_path('logs/email-transactions.log'),
+            'level' => env('EMAIL_TRANSACTION_LOG_LEVEL', 'info'),
+            'days' => env('EMAIL_TRANSACTION_LOG_RETENTION_DAYS', 90),
+            'replace_placeholders' => true,
+        ],
+
     ],
 
 ];

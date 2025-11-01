@@ -11,15 +11,22 @@
         <testsuite name="Feature">
             <directory>tests/Feature</directory>
         </testsuite>
+        <testsuite name="Integration">
+            <directory>tests/Integration</directory>
+        </testsuite>
     </testsuites>
     <source>
         <include>
             <directory>app</directory>
         </include>
+        <exclude>
+            <directory>app/Console/Commands</directory>
+            <file>app/Http/Middleware/EmailTransactionErrorHandler.php</file>
+        </exclude>
     </source>
     <php>
         <env name="APP_ENV" value="testing"/>
-        <env name="APP_MAINTENANCE_DRIVER" value="file"/>
+        <env name="APP_KEY" value="base64:2fl+Ktvkfl+Fuz4Qp/A75G2RTiWVA/ZoKX87DNjr0Og="/>
         <env name="BCRYPT_ROUNDS" value="4"/>
         <env name="CACHE_STORE" value="array"/>
         <env name="DB_CONNECTION" value="sqlite"/>
@@ -29,5 +36,14 @@
         <env name="QUEUE_CONNECTION" value="sync"/>
         <env name="SESSION_DRIVER" value="array"/>
         <env name="TELESCOPE_ENABLED" value="false"/>
+        
+        <!-- Email Transaction Test Configuration -->
+        <env name="EMAIL_TRANSACTION_MAX_RETRIES" value="2"/>
+        <env name="EMAIL_TRANSACTION_RETRY_DELAY" value="1"/>
+        <env name="EMAIL_TRANSACTION_DUPLICATE_THRESHOLD" value="0.01"/>
+        <env name="EMAIL_TRANSACTION_DUPLICATE_TIME_WINDOW" value="24"/>
+        <env name="EMAIL_TRANSACTION_LOG_LEVEL" value="debug"/>
+        <env name="EMAIL_TRANSACTION_AUDIT_TRAIL" value="true"/>
+        <env name="EMAIL_TRANSACTION_PERFORMANCE_METRICS" value="true"/>
     </php>
 </phpunit>

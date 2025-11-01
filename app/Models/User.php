@@ -21,6 +21,7 @@ class User extends Authenticatable
         'name',
         'email',
         'password',
+        'daily_target_income',
     ];
 
     /**
@@ -43,6 +44,18 @@ class User extends Authenticatable
         return [
             'email_verified_at' => 'datetime',
             'password' => 'hashed',
+            'daily_target_income' => 'decimal:2',
         ];
+    }
+
+    /**
+     * Get the formatted target income for display.
+     *
+     * @return string
+     */
+    public function getFormattedTargetIncomeAttribute(): string
+    {
+        return $this->daily_target_income ? 
+            number_format($this->daily_target_income, 2) : '0.00';
     }
 }

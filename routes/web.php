@@ -16,7 +16,7 @@ Route::get('/dashboard', [App\Http\Controllers\DashboardController::class, 'inde
 
 Route::resource('clients', App\Http\Controllers\ClientController::class);
 
-Route::resource('incomes', App\Http\Controllers\IncomeController::class);
+Route::resource('incomes', App\Http\Controllers\IncomeController::class)->middleware('auth');
 
 Route::resource('expenses', App\Http\Controllers\ExpenseController::class);
 
@@ -52,6 +52,35 @@ Route::middleware('auth')->group(function () {
     Route::get('/profile', [ProfileController::class, 'edit'])->name('profile.edit');
     Route::patch('/profile', [ProfileController::class, 'update'])->name('profile.update');
     Route::delete('/profile', [ProfileController::class, 'destroy'])->name('profile.destroy');
+    
+    // User Settings Routes
+    Route::get('/settings', [App\Http\Controllers\UserSettingsController::class, 'index'])->name('settings.index');
+    Route::get('/settings/target-income', [App\Http\Controllers\UserSettingsController::class, 'getTargetIncome'])->name('settings.target-income.get');
+    Route::post('/settings/target-income', [App\Http\Controllers\UserSettingsController::class, 'updateTargetIncome'])->name('settings.target-income.update');
+    Route::delete('/settings/target-income', [App\Http\Controllers\UserSettingsController::class, 'clearTargetIncome'])->name('settings.target-income.clear');
+    
+    // Inbox Dashboard Route
+    Route::get('inbox', [App\Http\Controllers\InboxController::class, 'index'])->name('inbox.dashboard');
+    
+    // Email Transaction System Routes
+    // Email Configuration Routes
+    Route::resource('email-configurations', App\Http\Controllers\EmailConfigurationController::class);
+    Route::post('email-configurations/{emailConfiguration}/test-connection', [App\Http\Controllers\EmailConfigurationController::class, 'testConnection'])->name('email-configurations.test-connection');
+    Route::post('email-configurations/{emailConfiguration}/toggle-status', [App\Http\Controllers\EmailConfigurationController::class, 'toggleStatus'])->name('email-configurations.toggle-status');
+    Route::post('email-configurations/{emailConfiguration}/manual-sync', [App\Http\Controllers\EmailConfigurationController::class, 'manualSync'])->name('email-configurations.manual-sync');
+    
+    // Email Transaction Routes
+    Route::resource('email-transactions', App\Http\Controllers\EmailTransactionController::class)->only(['index', 'show', 'edit', 'update', 'destroy']);
+    
+    // Debug route for testing AJAX
+    Route::post('debug/ajax-test', function(Request $request) {
+        return response()->json([
+            'success' => true,
+            'message' => 'AJAX is working correctly!',
+            'request_data' => $request->all(),
+            'headers' => $request->headers->all()
+        ]);
+    })->name('debug.ajax-test');
 });
 
 require __DIR__.'/auth.php';
